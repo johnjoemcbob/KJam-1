@@ -8,6 +8,18 @@ public class Player : Killable
 
 	public const float DEADZONE = 0.1f;
 
+	#region ==Enums
+	public enum State
+	{
+		Grounded,
+		Jump,
+		Fall,
+		Attack,
+		Special,
+		Hurt,
+	}
+	#endregion
+
 	#region ==Inspector
 	public float Speed = 10.0f;
 	public float RotationSpeed = 2.0f;
@@ -40,6 +52,9 @@ public class Player : Killable
 	[HideInInspector]
 	public bool Controllable = true;
 
+	private State CurrentState;
+	private float CurrentStateTime = 0;
+	private bool AttackAnim = true;
 	private float LastGrounded = 0;
 	private float currentHeadRotation = 0;
 	private float yVelocity = 0;
@@ -71,82 +86,31 @@ public class Player : Killable
 		SaveLoad.Load();
 	}
 
-	void Update()
+	public override void Update()
 	{
+		base.Update();
+
 		animator.SetBool( "Controllable", Controllable );
 
 		if ( Controllable )
 		{
-			// Input - Jump
 			Grounded = IsGrounded();
-			if ( Grounded && yVelocity <= 0 )
-			{
-				yVelocity = -Gravity * Time.deltaTime * 5;
 
-				// Not the best way but heyho
-				// TODO need to be dependant on air time?
-				//if ( LastGrounded < Time.time - Time.deltaTime * 2 )
-				//{
-				//	StaticHelpers.EmitParticleDust( transform.position );
-				//}
+			TargetVelocity = Vector3.zero;
+			UpdateState( CurrentState );
 
-				LastGrounded = Time.time;
-			}
-			else
-			{
-				// Gravity
-				yVelocity -= Gravity * Time.deltaTime;
-			}
-			if ( Grounded || LastGrounded + GroundedExtraAllowance >= Time.time )
-			{
-				if ( Input.GetButtonDown( "Jump" ) )
-				{
-					yVelocity = JumpSpeed;
-					LastGrounded = 0;
-					Jump();
-				}
-				else
-				{
-					animator.SetTrigger( "Grounded" );
-				}
-			}
-			animator.SetFloat( "FallSpeed", Grounded ? 0 : yVelocity );
-
-			// Input - Horizontal
-			TargetVelocity = BoomTrans.TransformDirection( new Vector3( Input.GetAxisRaw( "Horizontal" ), 0, 0 ) ) * Speed;
-			var vertical = BoomTrans.transform.TransformDirection( new Vector3( 0, 0, Input.GetAxisRaw( "Vertical" ) ) );
-			vertical.y = 0;
-			TargetVelocity += vertical.normalized * Speed;
 			moveVelocity = Vector3.Lerp( moveVelocity, TargetVelocity, Time.deltaTime * Speed );
-			moveVelocity.y = yVelocity;
-
-			// Attack test
-			if ( Input.GetMouseButtonDown( 0 ) )
-			{
-				Attack();
-			}
-
-			// Velocity
 			Vector3 velocity = moveVelocity + yVelocity * Vector3.up;
-			Vector3 horizontalvel = new Vector3( velocity.x, 0, velocity.z );
-
-			// Update animator
-			animator.SetFloat( "RunSpeed", horizontalvel.magnitude );
+			if ( velocity.magnitude >= DEADZONE )
+			{
+				controller.Move( velocity * Time.deltaTime );
+			}
 
 			// Undo rootmotion
 			animator.transform.localPosition = Vector3.zero;
 
-			if ( velocity.magnitude >= DEADZONE )
-			{
-				controller.Move( velocity * Time.deltaTime );
-
-				// Face character model at velocity direction
-				Root.LookAt( Root.position + horizontalvel );
-				Root.localEulerAngles = new Vector3( 0, Root.localEulerAngles.y, 0 );
-			}
-
 			// Look sine (TESTING)
-			currentHeadRotation = Mathf.Clamp( currentHeadRotation + Mathf.Sin( Time.time ) * RotationSpeed, minHeadRotation, maxHeadRotation );
+			currentHeadRotation = Mathf.Clamp( Mathf.Sin( Time.time * RotationSpeed ) * maxHeadRotation, minHeadRotation, maxHeadRotation );
 			// Update head
 			foreach ( Transform child in head )
 			{
@@ -181,32 +145,183 @@ public class Player : Killable
 	#endregion
 
 	#region States
-	// TODO
+	public void SwitchState( State state )
+	{
+		FinishState( CurrentState );
+		CurrentState = state;
+		StartState( CurrentState );
+	}
+
+	private void StartState( State state )
+	{
+		CurrentStateTime = 0;
+
+		// TODO switch case
+	}
+
+	private void UpdateState( State state )
+	{
+		CurrentStateTime += Time.deltaTime;
+
+		switch ( state )
+		{
+			case State.Grounded:
+				if ( !Grounded )
+				{
+					if ( Time.time - LastGrounded > 0.2f )
+					{
+						SwitchState( State.Fall );
+						return;
+					}
+				}
+				else
+				{
+					yVelocity = -Gravity * Time.deltaTime * 5;
+					LastGrounded = Time.time;
+					animator.SetTrigger( "Grounded" );
+				}
+
+				InputMoveHorizontal();
+				InputJump();
+				InputAttack();
+
+				break;
+			case State.Jump:
+				if ( Grounded && CurrentStateTime > 0.2f )
+				{
+					OnGrounded();
+					SwitchState( State.Grounded );
+					return;
+				}
+
+				InputMoveHorizontal();
+				InputAttack();
+
+				MoveFall();
+
+				break;
+			case State.Fall:
+				if ( Grounded )
+				{
+					OnGrounded();
+					SwitchState( State.Grounded );
+					return;
+				}
+
+				InputMoveHorizontal();
+				InputJump();
+				InputAttack();
+
+				MoveFall();
+
+				break;
+			case State.Attack:
+				if ( CurrentStateTime > 0.4f )
+				{
+					SwitchState( State.Grounded );
+				}
+				break;
+			case State.Special:
+				break;
+			case State.Hurt:
+				break;
+			default:
+				break;
+		}
+	}
+
+	private void FinishState( State state )
+	{
+
+	}
+	#endregion
+
+	#region Input
+	private void InputMoveHorizontal()
+	{
+		// Input - Horizontal
+		TargetVelocity = BoomTrans.TransformDirection( new Vector3( Input.GetAxisRaw( "Horizontal" ), 0, 0 ) ) * Speed;
+		var vertical = BoomTrans.transform.TransformDirection( new Vector3( 0, 0, Input.GetAxisRaw( "Vertical" ) ) );
+		vertical.y = 0;
+		TargetVelocity += vertical.normalized * Speed;
+
+		// Velocity
+		Vector3 horizontalvel = new Vector3( moveVelocity.x, 0, moveVelocity.z );
+
+		// Update animator
+		animator.SetFloat( "RunSpeed", horizontalvel.magnitude );
+
+		if ( horizontalvel.magnitude >= DEADZONE )
+		{
+			//controller.Move( horizontalvel * Time.deltaTime );
+
+			// Face character model at velocity direction
+			Root.LookAt( Root.position + horizontalvel );
+			Root.localEulerAngles = new Vector3( 0, Root.localEulerAngles.y, 0 );
+		}
+	}
+
+	private void InputJump()
+	{
+		if ( Grounded || LastGrounded + GroundedExtraAllowance >= Time.time )
+		{
+			if ( Input.GetButtonDown( "Jump" ) )
+			{
+				yVelocity = JumpSpeed;
+				LastGrounded = 0;
+				Jump();
+			}
+		}
+	}
+
+	private void InputAttack()
+	{
+		if ( Input.GetMouseButtonDown( 0 ) )
+		{
+			Attack();
+		}
+	}
+	#endregion
+
+	#region Movement
+	private void MoveFall()
+	{
+		// Gravity
+		animator.SetFloat( "FallSpeed", Grounded ? 0 : yVelocity );
+		yVelocity -= Gravity * Time.deltaTime;
+	}
+
+	private void OnGrounded()
+	{
+		animator.SetFloat( "FallSpeed", 0 );
+
+		// If landed after a while of air time, play effects
+		if ( CurrentStateTime > 0.1f )
+		{
+			StaticHelpers.EmitParticleDust( transform.position );
+		}
+	}
 	#endregion
 
 	#region Actions
 	private void Attack()
 	{
-		animator.SetTrigger( "Attack" + 1 );// + Mathf.RoundToInt( Random.Range( 1, 3 ) ) );
+		AttackAnim = !AttackAnim;
+		animator.SetTrigger( "Attack" + ( AttackAnim ? 1 : 3 ) );// + Mathf.RoundToInt( Random.Range( 1, 3 ) ) );
+		SwitchState( State.Attack );
 
-		StaticHelpers.SpawnAudioSource( SwordClip, transform.position, Random.Range( 0.8f, 1.2f ), 1 );
+		float pitch = Random.Range( 0.8f, 1.2f );
+		StaticHelpers.SpawnAudioSource( SwordClip, Camera.main.transform.position, pitch, 1 );
 
 		// Spawn the hitbox
 		var animtrans = animator.transform;
 		Hitbox.Spawn( true, 1, animtrans.position + animtrans.up * 1 + animtrans.forward * 1, animtrans.rotation, animtrans.localScale );
-
-		// todo temp
-		// Find all enemies and apply damage
-		//foreach ( var enemy in FindObjectsOfType<BaseEnemy>() )
-		//{
-		//	enemy.TakeDamage( 10 );
-		//}
-		AddGold( 10 );
 	}
 
 	private void Jump()
 	{
 		animator.SetTrigger( "Jump" );
+		SwitchState( State.Jump );
 
 		StaticHelpers.SpawnAudioSource( JumpClip, transform.position, Random.Range( 0.8f, 1.2f ), 0.5f );
 		StaticHelpers.EmitParticleDust( transform.position );
@@ -317,7 +432,7 @@ public class Player : Killable
 			// Raycast down from player feet, if hit something close then is grounded
 			int layerMask = 1 << LayerMask.NameToLayer( "Default" );
 			//Debug.DrawLine( transform.position, transform.position - Vector3.up * 0.5f, Color.red, 1 );
-			if ( Physics.Raycast( transform.position, -Vector3.up, 0.5f, layerMask ) )
+			if ( Physics.Raycast( transform.position, -Vector3.up, 0.2f, layerMask ) )
 			{
 				return true;
 			}

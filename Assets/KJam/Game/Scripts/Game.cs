@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 
 public class Game : MonoBehaviour
 {
@@ -36,28 +37,28 @@ public class Game : MonoBehaviour
 		UpdateState( CurrentState );
 
 		// Testing
-		if ( Input.GetKeyDown( KeyCode.T ) )
-		{
-			SwitchState( State.Match );
-			//UI.Instance.SwitchState( UI.State.HUD );
-		}
-		if ( Input.GetKeyDown( KeyCode.Y ) )
-		{
-			SwitchState( State.Lobby );
-			//UI.Instance.SwitchState( UI.State.Lobby );
-		}
-		if ( Input.GetKeyDown( KeyCode.U ) )
-		{
-			bool sucess = UI.Instance.SwitchLobbyState( UI.LobbyState.Main );
-		}
-		if ( Input.GetKeyDown( KeyCode.O ) )
-		{
-			bool sucess = UI.Instance.SwitchLobbyState( UI.LobbyState.Store );
-		}
-		if ( Input.GetKeyDown( KeyCode.P ) )
-		{
-			bool sucess = UI.Instance.SwitchLobbyState( UI.LobbyState.Inventory );
-		}
+		//if ( Input.GetKeyDown( KeyCode.T ) )
+		//{
+		//	SwitchState( State.Match );
+		//	//UI.Instance.SwitchState( UI.State.HUD );
+		//}
+		//if ( Input.GetKeyDown( KeyCode.Y ) )
+		//{
+		//	SwitchState( State.Lobby );
+		//	//UI.Instance.SwitchState( UI.State.Lobby );
+		//}
+		//if ( Input.GetKeyDown( KeyCode.U ) )
+		//{
+		//	bool sucess = UI.Instance.SwitchLobbyState( UI.LobbyState.Main );
+		//}
+		//if ( Input.GetKeyDown( KeyCode.O ) )
+		//{
+		//	bool sucess = UI.Instance.SwitchLobbyState( UI.LobbyState.Store );
+		//}
+		//if ( Input.GetKeyDown( KeyCode.P ) )
+		//{
+		//	bool sucess = UI.Instance.SwitchLobbyState( UI.LobbyState.Inventory );
+		//}
 	}
 	#endregion
 
@@ -157,8 +158,12 @@ public class Game : MonoBehaviour
 
 		if ( CurrentEnemies.Count == 0 )
 		{
-			SwitchState( State.Lobby );
+			Player.Instance.gameObject.SetActive( false );
+			SceneManager.LoadSceneAsync( 0 );
 		}
+
+		// Temp
+		Player.Instance.AddGold( 10 );
 	}
 
 	public void SpawnEnemy( GameObject prefab )

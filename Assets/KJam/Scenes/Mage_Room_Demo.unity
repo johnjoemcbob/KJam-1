@@ -21491,26 +21491,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1627016675}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &416609781 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2429146616703595596, guid: 27bfacc86bc1d4444b820ef2d509474d,
-    type: 3}
-  m_PrefabInstance: {fileID: 1390510248}
-  m_PrefabAsset: {fileID: 0}
---- !u!136 &416609782
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 416609781}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1001 &416678037
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -57304,7 +57284,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1160905084
 RectTransform:
   m_ObjectHideFlags: 0
@@ -68883,11 +68863,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 2429146616703595597, guid: 27bfacc86bc1d4444b820ef2d509474d,
-        type: 3}
-      propertyPath: MaxHealth
-      value: 100
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 27bfacc86bc1d4444b820ef2d509474d, type: 3}

@@ -4,14 +4,15 @@ using UnityEngine;
 
 public class Killable : Hitable
 {
-	[Header( "Variables" )]
 	public float MaxHealth;
 
 	protected float Health;
 	protected bool Dead = false;
 
-	public virtual void Start()
+	public override void Start()
 	{
+		base.Start();
+
 		Health = MaxHealth;
 	}
 
@@ -37,8 +38,6 @@ public class Killable : Hitable
 
 	public override void OnHit( Collider other )
 	{
-		base.OnHit( other );
-
 		// Get hitbox damage values here
 		var hit = other.transform.GetComponentInChildren<Hitbox>();
 		if ( hit != null )
@@ -46,6 +45,8 @@ public class Killable : Hitable
 			bool isplayer = ( this == Player.Instance );
 			if ( hit.PlayerTeam != isplayer )
 			{
+				base.OnHit( other );
+
 				TakeDamage( hit.Damage );
 			}
 		}

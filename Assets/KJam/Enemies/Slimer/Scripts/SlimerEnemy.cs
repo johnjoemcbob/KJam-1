@@ -4,7 +4,16 @@ using UnityEngine;
 
 public class SlimerEnemy : BaseEnemy
 {
+	private AudioSource Source;
+
 	#region MonoBehaviour
+	public override void Start()
+	{
+		base.Start();
+
+		Source = GetComponent<AudioSource>();
+	}
+
 	public override void Update()
 	{
 		base.Update();
@@ -14,6 +23,28 @@ public class SlimerEnemy : BaseEnemy
 
 		// Update animations
 		GetComponentInChildren<Animator>().SetFloat( "Speed", Agent.speed );
+
+		// Move sounds
+		//if ( Animator.GetCurrentAnimatorClipInfo( 0 )[0].clip.name == "WalkFWD" )
+		{
+			if ( !Source.isPlaying )
+			{
+				Source.Play();
+			}
+		}
+		//else
+		//{
+		//	Source.Stop();
+		//}
+	}
+
+	private void OnDestroy()
+	{
+		// Explode
+		GameObject death = Instantiate( Resources.Load( "Prefabs/Slimer Death" ), Game.RuntimeParent ) as GameObject;
+		death.transform.position = transform.position;
+		death.transform.rotation = transform.rotation;
+		Destroy( death, 1 );
 	}
 	#endregion
 
@@ -23,6 +54,7 @@ public class SlimerEnemy : BaseEnemy
 		base.Attack();
 
 		GetComponentInChildren<Animator>().SetTrigger( "Attack" );
+		StaticHelpers.SpawnResourceAudioSource( "slimer_attack", transform.position, Random.Range( 0.8f, 1.2f ) );
 
 		// Spawn projectile
 		GameObject projectile = Instantiate( Resources.Load( "Prefabs/SlimerProjectile" ), Game.RuntimeParent ) as GameObject;
@@ -36,23 +68,21 @@ public class SlimerEnemy : BaseEnemy
 	#region Health
 	protected override void Die()
 	{
-		base.Die();
+		if ( !Killed )
+		{
+			base.Die();
 
-		// Explode
-		GameObject death = Instantiate( Resources.Load( "Prefabs/Slimer Death" ), Game.RuntimeParent ) as GameObject;
-		death.transform.position = transform.position;
-		death.transform.rotation = transform.rotation;
-		Destroy( death, 1 );
+			// TODO TEMP spawn new replacement
+			//Game.Instance.SpawnEnemy( Resources.Load( "Prefabs/Slimer" ) as GameObject );
 
-		// TODO TEMP spawn new replacement
-		//Game.Instance.SpawnEnemy( Resources.Load( "Prefabs/Slimer" ) as GameObject );
+			// Communicate with Game
+			Game.Instance.OnEnemyKilled( this );
 
-		// Communicate with Game
-		Game.Instance.OnEnemyKilled( this );
-
-		// Destroy npc
-		gameObject.SetActive( false );
-		Destroy( gameObject );
+			// Destroy npc
+			this.enabled = false;
+			Destroy( gameObject, KillDelay );
+			Killed = true;
+		}
 	}
 	#endregion
 }

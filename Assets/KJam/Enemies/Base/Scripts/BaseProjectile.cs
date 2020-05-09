@@ -6,6 +6,8 @@ public class BaseProjectile : Hitbox
 {
 	public float Speed = 5;
 
+	public AudioClip HitClip;
+
 	private bool HasHit = false;
 
 	public virtual void Update()
@@ -21,6 +23,8 @@ public class BaseProjectile : Hitbox
 		{
 			Hit( other );
 			HasHit = true;
+
+			StaticHelpers.SpawnAudioSource( HitClip, transform.position, Random.Range( 0.8f, 1.2f ) );
 
 			Destroy( gameObject );
 		}

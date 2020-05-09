@@ -152,6 +152,7 @@ GameObject:
   - component: {fileID: 2429146616703595597}
   - component: {fileID: 2429146616703595952}
   - component: {fileID: 2429146616703595598}
+  - component: {fileID: 416609782}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -188,7 +189,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccbc2f5cc9b47d64db3d9f798ec70021, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 0
+  PunchWhenHit: 1
+  MaxHealth: 100
   Speed: 10
   RotationSpeed: 2
   GroundedExtraAllowance: 0.5
@@ -201,6 +203,7 @@ MonoBehaviour:
   JumpClip: {fileID: 8300000, guid: af8fdbf50eced1b4082c73405e0e82a1, type: 3}
   SwordClip: {fileID: 8300000, guid: 08dc9293aec8cd54b8a2c59260e4c376, type: 3}
   Data:
+    BuildVersion: 
     Gold: 0
     Items: []
     EquippedItemsKey: []
@@ -242,6 +245,20 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 3
+--- !u!136 &416609782
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2429146616703595596}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1 &2823845940687054774
 GameObject:
   m_ObjectHideFlags: 0
@@ -2775,6 +2792,7 @@ GameObject:
   - component: {fileID: 2766568036648609971}
   - component: {fileID: 2784927011959704911}
   - component: {fileID: 1042965537}
+  - component: {fileID: 6857117984088437848}
   m_Layer: 8
   m_Name: Character
   m_TagString: Untagged
@@ -2882,6 +2900,18 @@ MonoBehaviour:
   Feet:
   - {fileID: 2819437617578071551}
   - {fileID: 2819501938084179777}
+--- !u!114 &6857117984088437848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2825373105198404203}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1253c651e654824b80a800d07705606, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2825381747390115095
 GameObject:
   m_ObjectHideFlags: 0

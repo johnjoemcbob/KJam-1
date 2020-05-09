@@ -12,6 +12,15 @@ public class SkeletonEnemy : BaseEnemy
 		// Update animations
 		GetComponentInChildren<Animator>().SetFloat( "Speed", Agent.speed );
 	}
+
+	private void OnDestroy()
+	{
+		// Explode
+		GameObject death = Instantiate( Resources.Load( "Prefabs/Skeleton Death" ), Game.RuntimeParent ) as GameObject;
+		death.transform.position = transform.position;
+		death.transform.rotation = transform.rotation;
+		Destroy( death, 1 );
+	}
 	#endregion
 
 	#region Actions
@@ -20,6 +29,7 @@ public class SkeletonEnemy : BaseEnemy
 		base.Attack();
 
 		GetComponentInChildren<Animator>().SetTrigger( "Attack" );
+		StaticHelpers.SpawnResourceAudioSource( "skeleton_attack", transform.position, Random.Range( 0.8f, 1.2f ) );
 
 		Hitbox.Spawn( false, 1, transform.position + transform.up * 1 + transform.forward * 1, transform.rotation, transform.localScale );
 	}
@@ -28,23 +38,21 @@ public class SkeletonEnemy : BaseEnemy
 	#region Health
 	protected override void Die()
 	{
-		base.Die();
+		if ( !Killed )
+		{
+			base.Die();
 
-		// Explode
-		GameObject death = Instantiate( Resources.Load( "Prefabs/Skeleton Death" ), Game.RuntimeParent ) as GameObject;
-		death.transform.position = transform.position;
-		death.transform.rotation = transform.rotation;
-		Destroy( death, 1 );
+			// TODO TEMP spawn new replacement
+			//Game.Instance.SpawnEnemy( Resources.Load( "Prefabs/Skeleton" ) as GameObject );
 
-		// TODO TEMP spawn new replacement
-		//Game.Instance.SpawnEnemy( Resources.Load( "Prefabs/Skeleton" ) as GameObject );
+			// Communicate with Game
+			Game.Instance.OnEnemyKilled( this );
 
-		// Communicate with Game
-		Game.Instance.OnEnemyKilled( this );
-
-		// Destroy npc
-		gameObject.SetActive( false );
-		Destroy( gameObject );
+			// Destroy npc
+			this.enabled = false;
+			Destroy( gameObject, KillDelay );
+			Killed = true;
+		}
 	}
 	#endregion
 }

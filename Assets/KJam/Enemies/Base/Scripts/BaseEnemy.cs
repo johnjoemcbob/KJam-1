@@ -7,8 +7,10 @@ using UnityEngine.AI;
 public class BaseEnemy : Killable
 {
 	public float AttackRange = 1.5f;
+	public float KillDelay = 0.5f;
 
 	protected float NextAttack = 0;
+	protected bool Killed = false;
 
 	protected Animator Animator;
 	protected NavMeshAgent Agent;
@@ -22,8 +24,10 @@ public class BaseEnemy : Killable
 		Agent = GetComponent<NavMeshAgent>();
     }
 
-    public virtual void Update()
+    public override void Update()
     {
+		base.Update();
+
 		//if ( Input.GetMouseButtonDown( 0 ) )
 		//{
 		//	var ray = Camera.main.ScreenPointToRay( Input.mousePosition );
@@ -75,6 +79,25 @@ public class BaseEnemy : Killable
 	#endregion
 
 	#region Health
+	public override void OnHit( Collider other )
+	{
+		base.OnHit( other );
+
+		//if ( Health > 0 )
+		{
+			var hit = other.transform.GetComponentInChildren<Hitbox>();
+			if ( hit != null )
+			{
+				bool isplayer = ( this == Player.Instance );
+				if ( hit.PlayerTeam != isplayer )
+				{
+					Vector3 dir = ( transform.position - other.transform.position ).normalized;
+					StaticHelpers.SpawnPrefab( name + " Hit", other.ClosestPointOnBounds( transform.position ), Quaternion.LookRotation( dir, Vector3.up ), Vector3.one * hit.Damage );
+				}
+			}
+		}
+	}
+
 	protected override void Die()
 	{
 		base.Die();

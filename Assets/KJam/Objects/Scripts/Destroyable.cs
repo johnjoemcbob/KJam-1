@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Destroyable : Hitable
 {
-	[Header( "Variables" )]
 	public float Health = 1;
+	public float DestroyDelay = 0.5f;
 
 	[Header( "Assets" )]
 	public GameObject DestroyPrefab;
@@ -31,11 +31,15 @@ public class Destroyable : Hitable
 	{
 		base.OnHit( other );
 
-		Health -= 1; // TODO could be other.GetDamageSomehow
-		if ( Health <= 0 && !Destroyed )
+		var hit = other.transform.GetComponentInChildren<Hitbox>();
+		if ( hit != null )
 		{
-			Destroy( gameObject );
-			Destroyed = true;
+			Health -= hit.Damage;
+			if ( Health <= 0 && !Destroyed )
+			{
+				Destroy( gameObject, DestroyDelay );
+				Destroyed = true;
+			}
 		}
 	}
 }

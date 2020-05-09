@@ -23,12 +23,19 @@ public class Hitbox : MonoBehaviour
 
 	public bool CanHit( Transform other )
 	{
-		return !HasHit.Contains( other );
+		var hit = other.GetComponent<Hitable>();
+		return !HasHit.Contains( other ) && hit && PlayerTeam != ( other == Player.Instance.transform );
 	}
 
 	public void Hit( Transform other )
 	{
 		HasHit.Add( other );
+
+		// First hit of players always makes a noise
+		if ( HasHit.Count == 1 && PlayerTeam == true )
+		{
+			StaticHelpers.SpawnResourceAudioSource( "skeleton_attack", transform.position, Random.Range( 0.8f, 1.2f ) );
+		}
 	}
 
 	public static GameObject Spawn( bool player, float damage, Vector3 pos, Quaternion rot, Vector3 scale )

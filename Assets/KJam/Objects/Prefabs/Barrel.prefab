@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7118024205870861916}
   - component: {fileID: 369997808571958709}
   - component: {fileID: 138113814625733254}
+  - component: {fileID: 1072325936913455267}
   m_Layer: 0
   m_Name: Barrel
   m_TagString: Untagged
@@ -45,7 +46,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b02ce70d4209f7c4ca543e3e71c37a04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PunchWhenHit: 1
   Health: 1
+  DestroyDelay: 0.1
   DestroyPrefab: {fileID: 3063292315903249461, guid: 0d980996ee5e70e42a4f84c5006a3018,
     type: 3}
 --- !u!65 &138113814625733254
@@ -61,6 +64,18 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2.25671, y: 2.2756958, z: 2.3147457}
   m_Center: {x: -0.000000059604645, y: 1.2, z: 0}
+--- !u!114 &1072325936913455267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7118024205870861917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1253c651e654824b80a800d07705606, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &7118024205749052049
 PrefabInstance:
   m_ObjectHideFlags: 0

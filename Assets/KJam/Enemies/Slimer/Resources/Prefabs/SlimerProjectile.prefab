@@ -12,6 +12,11 @@ PrefabInstance:
       propertyPath: Damage
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 449483585094919140, guid: 7e94e91aa148f0b4484ffb6638b30003,
+        type: 3}
+      propertyPath: HitClip
+      value: 
+      objectReference: {fileID: 8300000, guid: ad7bb8ab2a4054b4b82f6585d6204f1d, type: 3}
     - target: {fileID: 3739550868777875631, guid: 7e94e91aa148f0b4484ffb6638b30003,
         type: 3}
       propertyPath: m_Name

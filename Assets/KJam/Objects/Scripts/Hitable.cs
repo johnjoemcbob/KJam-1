@@ -4,6 +4,17 @@ using UnityEngine;
 
 public class Hitable : MonoBehaviour
 {
+	[Header( "Variables" )]
+	public bool PunchWhenHit = true;
+
+	public virtual void Start()
+	{
+	}
+
+	public virtual void Update()
+	{
+	}
+
 	private void OnTriggerStay( Collider other )
 	{
 		var hitbox = other.GetComponent<Hitbox>();
@@ -16,6 +27,9 @@ public class Hitable : MonoBehaviour
 
 	public virtual void OnHit( Collider other )
 	{
-
+		if ( PunchWhenHit )
+		{
+			GetComponentInChildren<Punchable>().Punch();
+		}
 	}
 }
