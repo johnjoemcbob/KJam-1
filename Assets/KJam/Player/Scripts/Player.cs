@@ -30,6 +30,12 @@ public class Player : Killable
 
 	#region ==Variables
 	[HideInInspector]
+	public SaveInfo Data;
+	[HideInInspector]
+	public List<BaseItem> Items = new List<BaseItem>();
+	[HideInInspector]
+	public Dictionary<string, int> EquippedItems = new Dictionary<string, int>();
+	[HideInInspector]
 	public bool Grounded;
 	[HideInInspector]
 	public bool Controllable = true;
@@ -40,9 +46,6 @@ public class Player : Killable
 	private Vector3 TargetVelocity = Vector3.zero;
 	private Vector3 moveVelocity = Vector3.zero;
 
-	private List<BaseItem> Inventory = new List<BaseItem>();
-
-	private float Gold = 0;
 	#endregion
 
 	#region ==References
@@ -64,6 +67,8 @@ public class Player : Killable
 		controller = GetComponent<CharacterController>();
 		animator = GetComponentInChildren<Animator>();
 		BoomTrans = GetComponentInChildren<CameraControls>().transform.parent;
+
+		SaveLoad.Load();
 	}
 
 	void Update()
@@ -152,6 +157,11 @@ public class Player : Killable
 			child.Rotate( Vector3.left, currentHeadRotation );
 		}
 	}
+
+	private void OnDestroy()
+	{
+		SaveLoad.Save();
+	}
 	#endregion
 
 	#region States
@@ -199,33 +209,80 @@ public class Player : Killable
 	}
 	#endregion
 
-	#region Inventory
-	public void AddItem( BaseItem item )
-	{
-		Inventory.Add( item );
-	}
-
-	public List<BaseItem> GetInventory()
-	{
-		return Inventory;
-	}
-	#endregion
-
 	#region Gold
 	public float AddGold( float add )
 	{
-		Gold = Mathf.Max( 0, Gold + add );
-		return Gold;
+		Data.Gold = Mathf.Max( 0, Data.Gold + add );
+		return Data.Gold;
 	}
 
 	public bool HasGold( float gold )
 	{
-		return Gold >= gold;
+		return Data.Gold >= gold;
 	}
 
 	public float GetGold()
 	{
-		return Gold;
+		return Data.Gold;
+	}
+	#endregion
+
+	#region Inventory
+	public void AddItem( BaseItem item )
+	{
+		Items.Add( item );
+	}
+
+	public List<BaseItem> GetInventory()
+	{
+		return Items;
+	}
+	#endregion
+
+	#region Equipped Items
+	public void Equip( string type, BaseItem item )
+	{
+		if ( !EquippedItems.ContainsKey( type ) )
+		{
+			EquippedItems.Add( type, Items.IndexOf( item ) );
+		}
+		EquippedItems[type] = Items.IndexOf( item );
+
+		UpdateSlot( type );
+	}
+
+	public void UnEquip( string type )
+	{
+		EquippedItems.Remove( type );
+
+		ClearSlot( type );
+	}
+
+	public Dictionary<string, int> GetEquippedItems()
+	{
+		return EquippedItems;
+	}
+
+	private void UpdateSlot( string type )
+	{
+		var trans = GetSlot( type );
+		GameObject item = Instantiate( Items[EquippedItems[type]].Prefab, trans );
+		//item.transform.localPosition = Vector3.zero;
+		//item.transform.localEulerAngles = Vector3.zero;
+	}
+
+	private void ClearSlot( string type )
+	{
+		var trans = GetSlot( type );
+		foreach ( Transform child in trans )
+		{
+			Destroy( child.gameObject );
+		}
+	}
+
+	private Transform GetSlot( string type )
+	{
+		return GameObject.Find( "ATTACH_" + type.ToString().ToUpper() ).transform;
 	}
 	#endregion
 

@@ -33,9 +33,11 @@ public class DragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
 
 		if ( CurrentDragged != null )
 		{
-			transform.parent = OldParent;
+			//transform.parent = OldParent;
 			transform.localPosition = OldPos;
-			OldParent = null;
+			//OldParent = null;
+
+			InventoryUI.Instance.DropOnEmpty( gameObject );
 
 			CurrentDragged = null;
 		}
