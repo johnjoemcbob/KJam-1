@@ -9,6 +9,7 @@ public class SkeletonEnemy : BaseEnemy
 	{
 		base.Update();
 
+		// Update animations
 		GetComponentInChildren<Animator>().SetFloat( "Speed", Agent.speed );
 	}
 	#endregion
@@ -36,7 +37,10 @@ public class SkeletonEnemy : BaseEnemy
 		Destroy( death, 1 );
 
 		// TODO TEMP spawn new replacement
-		Game.Instance.SpawnEnemy( Resources.Load( "Prefabs/Skeleton" ) as GameObject );
+		//Game.Instance.SpawnEnemy( Resources.Load( "Prefabs/Skeleton" ) as GameObject );
+
+		// Communicate with Game
+		Game.Instance.OnEnemyKilled( this );
 
 		// Destroy npc
 		gameObject.SetActive( false );

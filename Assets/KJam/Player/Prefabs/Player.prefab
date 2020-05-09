@@ -110,6 +110,36 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!1 &1857019497801275327
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7563307968524327561}
+  m_Layer: 8
+  m_Name: CenterMass
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7563307968524327561
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1857019497801275327}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.25, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2429146616703595594}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2429146616703595596
 GameObject:
   m_ObjectHideFlags: 0
@@ -142,6 +172,7 @@ Transform:
   m_Children:
   - {fileID: 2771736786289118870}
   - {fileID: 1277011781473930920}
+  - {fileID: 7563307968524327561}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -169,6 +200,12 @@ MonoBehaviour:
   head: {fileID: 2828097658204371511}
   JumpClip: {fileID: 8300000, guid: af8fdbf50eced1b4082c73405e0e82a1, type: 3}
   SwordClip: {fileID: 8300000, guid: 08dc9293aec8cd54b8a2c59260e4c376, type: 3}
+  Data:
+    Gold: 0
+    Items: []
+    EquippedItemsKey: []
+    EquippedItemsValue: 
+  Items: []
   Grounded: 0
   Controllable: 1
 --- !u!143 &2429146616703595952

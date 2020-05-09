@@ -6,9 +6,11 @@ public class Hitable : MonoBehaviour
 {
 	private void OnTriggerStay( Collider other )
 	{
-		if ( other.gameObject.layer == LayerMask.NameToLayer( "Hitbox" ) )
+		var hitbox = other.GetComponent<Hitbox>();
+		if ( hitbox && hitbox.CanHit( transform ) )
 		{
 			OnHit( other );
+			hitbox.Hit( transform );
 		}
 	}
 

@@ -16,16 +16,33 @@ public class Options : MonoBehaviour
 	}
 	#endregion
 
-	#region Options - Initialize UI
+	#region MonoBehaviour
 	public void OnEnable()
 	{
-		// TODO Load here
-
+		Load();
 
 		// MouseCameraSensitivity
 		transform.GetChild( 0 ).GetComponentInChildren<Slider>().value = MouseCameraSensitivity;
 	}
+
+	public void OnDisable()
+	{
+		Save();
+	}
 	#endregion
 
-	// TODO save and load also
+	#region Save/Load
+	public static void Save()
+	{
+		PlayerPrefs.SetFloat( "MouseCameraSensitivity", MouseCameraSensitivity );
+
+		// Save last
+		PlayerPrefs.Save();
+	}
+
+	public static void Load()
+	{
+		MouseCameraSensitivity = PlayerPrefs.GetFloat( "MouseCameraSensitivity", MouseCameraSensitivity );
+	}
+	#endregion
 }

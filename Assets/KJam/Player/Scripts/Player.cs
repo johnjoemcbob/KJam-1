@@ -73,6 +73,8 @@ public class Player : Killable
 
 	void Update()
 	{
+		animator.SetBool( "Controllable", Controllable );
+
 		if ( Controllable )
 		{
 			// Input - Jump
@@ -111,7 +113,10 @@ public class Player : Killable
 			animator.SetFloat( "FallSpeed", Grounded ? 0 : yVelocity );
 
 			// Input - Horizontal
-			TargetVelocity = BoomTrans.TransformDirection( new Vector3( Input.GetAxisRaw( "Horizontal" ), 0, Input.GetAxisRaw( "Vertical" ) ) ) * Speed;
+			TargetVelocity = BoomTrans.TransformDirection( new Vector3( Input.GetAxisRaw( "Horizontal" ), 0, 0 ) ) * Speed;
+			var vertical = BoomTrans.transform.TransformDirection( new Vector3( 0, 0, Input.GetAxisRaw( "Vertical" ) ) );
+			vertical.y = 0;
+			TargetVelocity += vertical.normalized * Speed;
 			moveVelocity = Vector3.Lerp( moveVelocity, TargetVelocity, Time.deltaTime * Speed );
 			moveVelocity.y = yVelocity;
 
@@ -142,19 +147,30 @@ public class Player : Killable
 
 			// Look sine (TESTING)
 			currentHeadRotation = Mathf.Clamp( currentHeadRotation + Mathf.Sin( Time.time ) * RotationSpeed, minHeadRotation, maxHeadRotation );
+			// Update head
+			foreach ( Transform child in head )
+			{
+				child.localRotation = Quaternion.identity;
+				child.Rotate( Vector3.left, currentHeadRotation );
+			}
 		}
 		else
 		{
-			// Look at cursor
-			// TODO
-			currentHeadRotation = Mathf.Clamp( currentHeadRotation + Mathf.Sin( Time.time ) * RotationSpeed, minHeadRotation, maxHeadRotation );
-		}
+			// Update head - Look at cursor
+			Vector3 mouse = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane);
+			var pos = Camera.main.ScreenToWorldPoint( mouse ) + new Vector3( Camera.main.transform.localPosition.x, 0, 0 ) / 2;
+			Debug.DrawLine( Camera.main.transform.position, pos, Color.red, 5 );
+			foreach ( Transform child in head )
+			{
+				child.localRotation = Quaternion.identity;
+				child.LookAt( pos );
+				child.Rotate( child.right, 90 );
+				child.Rotate( child.forward, 90 );
+			}
 
-		// Update head
-		foreach ( Transform child in head )
-		{
-			child.localRotation = Quaternion.identity;
-			child.Rotate( Vector3.left, currentHeadRotation );
+			// Look at camera
+			Root.LookAt( Camera.main.transform );
+			Root.localEulerAngles = new Vector3( 0, Root.localEulerAngles.y, 0 );
 		}
 	}
 
@@ -265,6 +281,9 @@ public class Player : Killable
 
 	private void UpdateSlot( string type )
 	{
+		// Shouldn't be necessary but its a jam teehee
+		ClearSlot( type );
+
 		var trans = GetSlot( type );
 		GameObject item = Instantiate( Items[EquippedItems[type]].Prefab, trans );
 		//item.transform.localPosition = Vector3.zero;

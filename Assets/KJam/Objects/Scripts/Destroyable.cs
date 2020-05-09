@@ -14,13 +14,17 @@ public class Destroyable : Hitable
 
 	private void OnDestroy()
 	{
-		var destroy = Instantiate( DestroyPrefab, Game.RuntimeParent );
+		// Don't call on normal scene cleanup
+		if ( Destroyed )
 		{
-			destroy.transform.position = transform.position;
-			destroy.transform.rotation = transform.rotation;
-			destroy.transform.localScale = transform.localScale;
+			var destroy = Instantiate( DestroyPrefab, Game.RuntimeParent );
+			{
+				destroy.transform.position = transform.position;
+				destroy.transform.rotation = transform.rotation;
+				destroy.transform.localScale = transform.localScale;
+			}
+			Destroy( destroy, 1.1f );
 		}
-		Destroy( destroy, 1.1f );
 	}
 
 	public override void OnHit( Collider other )

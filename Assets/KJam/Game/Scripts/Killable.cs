@@ -8,6 +8,7 @@ public class Killable : Hitable
 	public float MaxHealth;
 
 	protected float Health;
+	protected bool Dead = false;
 
 	public virtual void Start()
 	{
@@ -30,6 +31,7 @@ public class Killable : Hitable
 		if ( Health <= 0 )
 		{
 			Die();
+			Dead = true;
 		}
 	}
 
@@ -37,7 +39,7 @@ public class Killable : Hitable
 	{
 		base.OnHit( other );
 
-		// TODO get hitbox damage values here
+		// Get hitbox damage values here
 		var hit = other.transform.GetComponentInChildren<Hitbox>();
 		if ( hit != null )
 		{

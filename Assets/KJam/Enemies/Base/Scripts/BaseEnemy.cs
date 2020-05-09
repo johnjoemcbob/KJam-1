@@ -10,11 +10,15 @@ public class BaseEnemy : Killable
 
 	protected float NextAttack = 0;
 
+	protected Animator Animator;
 	protected NavMeshAgent Agent;
 
 	#region MonoBehaviour
-	public virtual void Start()
+	public override void Start()
     {
+		base.Start();
+
+		Animator = GetComponentInChildren<Animator>();
 		Agent = GetComponent<NavMeshAgent>();
     }
 
@@ -31,7 +35,10 @@ public class BaseEnemy : Killable
 		//}
 
 		// This should still work for non-navmesh areas, but tables have to be jumped on to
-		Vector3 playerpos = FindObjectOfType<Player>().transform.position;
+		var player = FindObjectOfType<Player>();
+		if ( player == null ) return;
+
+		Vector3 playerpos = player.transform.position;
 		Vector3 groundpos = new Vector3( playerpos.x, transform.position.y, playerpos.z );
 		float searchdist = Agent.height * 2;
 

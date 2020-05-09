@@ -11,7 +11,7 @@ public class StaticHelpers
 	#region Statics
 	public static GameObject EmitParticleImpact( Vector3 point )
 	{
-		GameObject particle = GameObject.Instantiate( Resources.Load( "Prefabs/Particle Effect" ) ) as GameObject;
+		GameObject particle = GameObject.Instantiate( Resources.Load( "Prefabs/Particle Effect" ), Game.RuntimeParent ) as GameObject;
 		{
 			particle.transform.position = point;
 
@@ -22,7 +22,7 @@ public class StaticHelpers
 
 	public static GameObject EmitParticleDust( Vector3 point )
 	{
-		GameObject particle = GameObject.Instantiate( Resources.Load( "Prefabs/Particle Dust" ) ) as GameObject;
+		GameObject particle = GameObject.Instantiate( Resources.Load( "Prefabs/Particle Dust" ), Game.RuntimeParent ) as GameObject;
 		{
 			particle.transform.position = point;
 
@@ -33,7 +33,12 @@ public class StaticHelpers
 
 	public static GameObject SpawnPrefab( string name, Vector3 pos, Quaternion rot, Vector3 scale )
 	{
-		GameObject prefab = GameObject.Instantiate( Resources.Load( "Prefabs/" + name ) as GameObject );
+		return SpawnResource( "Prefabs/" + name, pos, rot, scale );
+	}
+
+	public static GameObject SpawnResource( string name, Vector3 pos, Quaternion rot, Vector3 scale )
+	{
+		GameObject prefab = GameObject.Instantiate( Resources.Load( name ) as GameObject, Game.RuntimeParent );
 		{
 			prefab.transform.position = pos;
 			prefab.transform.rotation = rot;
@@ -50,7 +55,7 @@ public class StaticHelpers
 
 	public static GameObject SpawnAudioSource( AudioClip clip, Vector3 point, float pitch = 1, float volume = 1, float delay = 0 )
 	{
-		GameObject source = GameObject.Instantiate( Resources.Load( "Prefabs/Audio Source" ) ) as GameObject;
+		GameObject source = GameObject.Instantiate( Resources.Load( "Prefabs/Audio Source" ), Game.RuntimeParent ) as GameObject;
 		{
 			source.transform.position = point;
 

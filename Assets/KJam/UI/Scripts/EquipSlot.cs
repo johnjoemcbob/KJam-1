@@ -1,15 +1,29 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
+[ExecuteInEditMode]
 public class EquipSlot : MonoBehaviour, IDropHandler
 {
 	public ItemType AcceptsItemType;
 
 	private void Start()
 	{
-		InventoryUI.Instance.AddSlot( this );
+		if ( InventoryUI.Instance != null )
+		{
+			InventoryUI.Instance.AddSlot( this );
+		}
+		UpdateUI();
+	}
+
+	private void Update()
+	{
+		if ( !Application.isPlaying )
+		{
+			UpdateUI();
+		}
 	}
 
 	public void OnDrop( PointerEventData data )
@@ -23,5 +37,11 @@ public class EquipSlot : MonoBehaviour, IDropHandler
 		//	DragItem.CurrentDragged.transform.localPosition = Vector3.zero;
 		//	DragItem.CurrentDragged = null;
 		//}
+	}
+
+	public void UpdateUI()
+	{
+		name = AcceptsItemType.ToString() + " (Slot)";
+		GetComponentInChildren<Text>().text = AcceptsItemType.ToString();
 	}
 }

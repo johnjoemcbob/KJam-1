@@ -25,6 +25,25 @@ public class CameraControls : MonoBehaviour
 		if ( UI.Instance.ShouldShowCursor() )//|| Input.GetMouseButton( 1 ) )
 		{
 			Cursor.lockState = CursorLockMode.None;
+
+			// UI Lobby camera
+			if ( !Player.Instance.Controllable )
+			{
+				var rect = GameObject.Find( "Blank (Spacer)" ).GetComponent<RectTransform>();
+				float dir = 0;
+				float mult = 2;
+				if ( rect.position.x < 400 )
+				{
+					dir = 1;
+				}
+				else if ( rect.position.x > 500 )
+				{
+					dir = -1;
+				}
+				Vector3 target = -Vector3.forward * Distance.y + Vector3.right * dir * mult;
+				transform.localPosition = Vector3.Lerp( transform.localPosition, target, Time.deltaTime * LerpSpeed );
+			}
+
 			return;
 		}
 		else
@@ -35,7 +54,7 @@ public class CameraControls : MonoBehaviour
 		// Update horizontal/ vertical angles
 		horizontal += Input.GetAxis( "Mouse X" ) * Options.MouseCameraSensitivity;
 		vertical -= Input.GetAxis( "Mouse Y" ) * Options.MouseCameraSensitivity;
-		vertical = Mathf.Clamp( vertical, 0, 79 );
+		vertical = Mathf.Clamp( vertical, -30, 79 );
 
 		// Update the rotation
 		Transform boom = transform.parent;

@@ -18,6 +18,8 @@ public class Game : MonoBehaviour
 
 	#region ==Variables
 	protected State CurrentState;
+
+	protected List<BaseEnemy> CurrentEnemies;
 	#endregion
 
 	#region MonoBehaviour
@@ -84,6 +86,7 @@ public class Game : MonoBehaviour
 				UI.Instance.SwitchState( UI.State.HUD );
 				Player.Instance.Controllable = true;
 				// Spawn enemies
+				LoadLevel();
 				// Spawn player on character menu spot
 				// Smooth camera
 				break;
@@ -118,7 +121,8 @@ public class Game : MonoBehaviour
 				break;
 			case State.Match:
 				// Delete any runtimes
-				// Including player
+				UnloadLevel();
+
 				break;
 			default:
 				break;
@@ -127,6 +131,36 @@ public class Game : MonoBehaviour
 	#endregion
 
 	#region Level
+	public void LoadLevel()
+	{
+		// Load level into runtime
+		StaticHelpers.SpawnResource( "Levels/TestLevel", Vector3.zero, Quaternion.identity, Vector3.one );
+
+		// Store all enemies
+		CurrentEnemies = new List<BaseEnemy>( FindObjectsOfType<BaseEnemy>() );
+	}
+
+	public void UnloadLevel()
+	{
+		// Clear runtime
+		foreach ( Transform child in RuntimeParent )
+		{
+			Destroy( child.gameObject );
+		}
+	}
+	#endregion
+
+	#region Enemies
+	public void OnEnemyKilled( BaseEnemy enemy )
+	{
+		CurrentEnemies.Remove( enemy );
+
+		if ( CurrentEnemies.Count == 0 )
+		{
+			SwitchState( State.Lobby );
+		}
+	}
+
 	public void SpawnEnemy( GameObject prefab )
 	{
 		GameObject enemy = Instantiate( prefab, RuntimeParent );

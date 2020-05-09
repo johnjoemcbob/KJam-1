@@ -36,13 +36,13 @@ public static class SaveLoad
 			Player.Instance.Data.EquippedItemsValue[index] = item.Value;
 			index++;
 		}
+		Player.Instance.Data.BuildVersion = Application.buildGUID;
 
 		// Save
 		string dataPath = string.Format("{0}/save.dat", Application.persistentDataPath);
 		BinaryFormatter binaryFormatter = new BinaryFormatter();
 		FileStream fileStream;
 
-		PlatformSafeMessage( "Try to Save: " + Player.Instance.Data.Gold );
 		try
 		{
 			if ( File.Exists( dataPath ) )
@@ -71,7 +71,6 @@ public static class SaveLoad
 		SaveInfo data = new SaveInfo();
 		string dataPath = string.Format("{0}/save.dat", Application.persistentDataPath);
 
-		PlatformSafeMessage( "Try to Load: " + dataPath );
 		try
 		{
 			if ( File.Exists( dataPath ) )
@@ -94,6 +93,8 @@ public static class SaveLoad
 		{
 			PlatformSafeMessage( "Failed to Load: " + e.Message );
 		}
+
+		if ( data.BuildVersion != Application.buildGUID ) return;
 
 		// Apply to player data
 		// Account for bad save/load
