@@ -31,13 +31,14 @@ public class StaticHelpers
 				// Search prefabs for any disabled which are usable
 				foreach ( var cached in PrefabPools[path] )
 				{
-					if ( !cached.activeSelf )
+					if ( cached != null && !cached.activeSelf )
 					{
 						prefab = cached;
 						prefab.SetActive( true );
 						break;
 					}
 				}
+				//PrefabPools[path].Remove( null );
 			}
 			else
 			{
@@ -59,7 +60,10 @@ public class StaticHelpers
 				prefab.transform.rotation = rot;
 				prefab.transform.localScale = scale;
 
-				Game.Instance.StartCoroutine( DisableAfterTimeout( prefab, timeout ) );
+				if ( timeout != 0 )
+				{
+					Game.Instance.StartCoroutine( DisableAfterTimeout( prefab, timeout ) );
+				}
 			}
 		}
 		return prefab;
@@ -151,7 +155,10 @@ public class StaticHelpers
 				source.spatialBlend = 1;
 				source.PlayDelayed( delay );
 
-				Game.Instance.StartCoroutine( DisableAfterTimeout( source.gameObject, delay + clip.length + 0.1f ) );
+				if ( Game.Instance != null )
+				{
+					Game.Instance.StartCoroutine( DisableAfterTimeout( source.gameObject, delay + clip.length + 0.1f ) );
+				}
 			}
 		}
 		return source;

@@ -263,7 +263,7 @@ public class Game : MonoBehaviour
 		}
 
 		// Temp
-		Player.Instance.AddGold( 10 );
+		//Player.Instance.AddGold( 10 );
 	}
 
 	public void SpawnEnemy( GameObject prefab )
@@ -286,4 +286,9 @@ public class Game : MonoBehaviour
 		return hit.position;
 	}
 	#endregion
+
+	public void ButtonClearSave()
+	{
+		SaveLoad.Clear();
+	}
 }

@@ -120,6 +120,28 @@ public static class SaveLoad
 		}
 	}
 
+	public static void Clear()
+	{
+		// Save
+		string dataPath = string.Format("{0}/save.dat", Application.persistentDataPath);
+
+		try
+		{
+			if ( File.Exists( dataPath ) )
+			{
+				File.Delete( dataPath );
+			}
+
+			OnSave();
+		}
+		catch ( Exception e )
+		{
+			PlatformSafeMessage( "Failed to Save: " + e.Message );
+		}
+
+		Load();
+	}
+
 	private static void OnSave()
 	{
 		if ( Application.platform == RuntimePlatform.WebGLPlayer )

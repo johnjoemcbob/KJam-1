@@ -24,4 +24,4 @@ MonoBehaviour:
   Stats:
   - Variable: MaxHP
     Multiply: 0
-    Modifier: 5
+    Modifier: 10

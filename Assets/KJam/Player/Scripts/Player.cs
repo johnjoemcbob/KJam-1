@@ -312,8 +312,10 @@ public class Player : Killable
 
 		float pitch = Random.Range( 0.8f, 1.2f );
 		StaticHelpers.GetOrCreateCachedAudioSource( SwordClip, Camera.main.transform.position, pitch, 1 );
-
-		// Spawn the hitbox
+	}
+	// Called from animator for correct damage timings
+	public void SpawnHitbox()
+	{
 		var animtrans = animator.transform;
 		Hitbox.Spawn( true, BuffableVariable["Damage"].Current, animtrans.position + animtrans.up * 1 + animtrans.forward * 1, animtrans.rotation, animtrans.localScale );
 	}
@@ -338,6 +340,8 @@ public class Player : Killable
 			animator.SetTrigger( "TakeDamage" );
 			Game.ChromAb.intensity.value = 1;
 			Game.LensDis.intensity.value = -0.2f;
+
+			StaticHelpers.GetOrCreateCachedAudioSource( "player_hurt", transform.position, Random.Range( 0.8f, 1.2f ) );
 		}
 	}
 
@@ -355,9 +359,11 @@ public class Player : Killable
 	#endregion
 
 	#region Gold
-	public float AddGold( float add )
+	public float AddGold( int add )
 	{
 		Data.Gold = Mathf.Max( 0, Data.Gold + add );
+		StaticHelpers.GetOrCreateCachedAudioSource( "gold_collect", false, Random.Range( 0.8f, 1.2f ) );
+		UpdateGoldBag( add );
 		return Data.Gold;
 	}
 
@@ -369,6 +375,14 @@ public class Player : Killable
 	public float GetGold()
 	{
 		return Data.Gold;
+	}
+
+	private void UpdateGoldBag( int add )
+	{
+		var bag = GameObject.Find( "GOLDBAG" ).transform; // TODO BAD BUT OH WELL
+		bag.localScale += new Vector3( 1, 0.2f, 0.2f ) * 0.2f * add;
+		bag.localScale = new Vector3( Mathf.Clamp( bag.localScale.x, 1, 5 ), Mathf.Clamp( bag.localScale.y, 1, 5 ), Mathf.Clamp( bag.localScale.z, 1, 5 ) );
+		bag.GetComponentInChildren<Punchable>().Punch();
 	}
 	#endregion
 
@@ -605,6 +619,8 @@ public class Player : Killable
 
 		// Initial Default items
 		Items = new List<BaseItem>();
+		EquippedItems = new Dictionary<string, int>();
+		CurrentEffectors = new Dictionary<string, VariableEffect>();
 		var items = Resources.LoadAll( "Items", typeof( BaseItem ) );
 		foreach ( var obj in items )
 		{

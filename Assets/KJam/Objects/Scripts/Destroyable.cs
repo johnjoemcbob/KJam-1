@@ -38,8 +38,14 @@ public class Destroyable : Hitable
 			if ( Health <= 0 && !Destroyed )
 			{
 				Destroy( gameObject, DestroyDelay );
+				OnDestroyabled();
 				Destroyed = true;
 			}
 		}
+	}
+
+	protected virtual void OnDestroyabled()
+	{
+
 	}
 }

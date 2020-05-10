@@ -55,9 +55,9 @@ public class Shop : MonoBehaviour
 
 		GameObject listing = Instantiate( ItemListingPrefab, transform );
 		listing.GetComponentsInChildren<Text>()[0].text = item.Cost + "G";
-		listing.GetComponentsInChildren<Text>()[1].text = "Buy " + item.Name;
+		listing.GetComponentsInChildren<Text>()[1].text = item.Name;
 
-		listing.GetComponentsInChildren<Image>()[2].sprite = item.Sprite;
+		listing.GetComponentsInChildren<Image>()[3].sprite = item.Sprite;
 
 		listing.GetComponentInChildren<Button>().onClick.AddListener( delegate { ButtonClickBuyListing( listing, item ); } );
 	}
