@@ -36,7 +36,7 @@ public static class SaveLoad
 			Player.Instance.Data.EquippedItemsValue[index] = item.Value;
 			index++;
 		}
-		Player.Instance.Data.BuildVersion = Application.buildGUID;
+		Player.Instance.Data.BuildVersion = GetBuildID();
 
 		// Save
 		string dataPath = string.Format("{0}/save.dat", Application.persistentDataPath);
@@ -83,10 +83,8 @@ public static class SaveLoad
 			}
 			else
 			{
-				data.Gold = 0;
-				data.Items = null;
-				data.EquippedItemsKey = null;
-				data.EquippedItemsValue = null;
+				Player.Instance.CreateSaveStructure();
+				return;
 			}
 		}
 		catch ( Exception e )
@@ -94,7 +92,7 @@ public static class SaveLoad
 			PlatformSafeMessage( "Failed to Load: " + e.Message );
 		}
 
-		if ( data.BuildVersion != Application.buildGUID ) return;
+		if ( data.BuildVersion != GetBuildID() ) return;
 
 		// Apply to player data
 		// Account for bad save/load
@@ -112,6 +110,7 @@ public static class SaveLoad
 
 		// Load equipped from arrays into dictionary again
 		Player.Instance.EquippedItems = new Dictionary<string, int>();
+		Player.Instance.ClearArmour();
 		if ( data.EquippedItemsKey != null )
 		{
 			for ( int i = 0; i < data.EquippedItemsKey.Length; i++ )
@@ -139,5 +138,10 @@ public static class SaveLoad
 		{
 			Debug.Log( message );
 		}
+	}
+
+	public static string GetBuildID()
+	{
+		return Application.buildGUID + Resources.LoadAll( "Items", typeof( BaseItem ) ).Length;
 	}
 }

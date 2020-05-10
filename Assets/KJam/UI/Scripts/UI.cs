@@ -170,6 +170,8 @@ public class UI : MonoBehaviour
 		CurrentLobbyState = state;
 		StartLobbyState( CurrentLobbyState, first );
 
+		StaticHelpers.GetOrCreateCachedAudioSource( "ui_swoosh", true, Random.Range( 0.8f, 1.2f ) );
+
 		return true;
 	}
 
@@ -187,6 +189,14 @@ public class UI : MonoBehaviour
 			{
 				realanim = real;
 			}
+			//else
+			//{
+			// // This was an attempt to make the return to the lobby rotate from transparency
+			//	foreach ( Transform section in real.transform )
+			//	{
+			//		section.transform.localPosition += new Vector3( 0, 1024, 0 );
+			//	}
+			//}
 
 			// Populate the back of the real
 			var copy = UILobbyContainers[(int) state];

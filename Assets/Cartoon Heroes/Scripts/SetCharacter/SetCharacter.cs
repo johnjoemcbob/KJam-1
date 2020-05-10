@@ -15,18 +15,6 @@ namespace CartoonHeroes
 
         public GameObject disabledGraySkeleton;
 
-        // Use this for initialization
-        void Start()
-        {
-
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
-
         [System.Serializable]
         public class ItemGroup
         {

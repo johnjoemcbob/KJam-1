@@ -24,7 +24,7 @@ public class BaseProjectile : Hitbox
 			Hit( other );
 			HasHit = true;
 
-			StaticHelpers.SpawnAudioSource( HitClip, transform.position, Random.Range( 0.8f, 1.2f ) );
+			StaticHelpers.GetOrCreateCachedAudioSource( HitClip, transform.position, Random.Range( 0.8f, 1.2f ) );
 
 			Destroy( gameObject );
 		}

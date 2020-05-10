@@ -2,22 +2,38 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 
 public class Game : MonoBehaviour
 {
+	public const float MATCHTOLOBBY_ANIM_TIME = 3.5f;
+
 	public static Game Instance;
 	public static Transform RuntimeParent;
+	public static Volume PostProcessing;
+	public static ChromaticAberration ChromAb;
+	public static ColorAdjustments ColourAdj;
+	public static LensDistortion LensDis;
 
 	#region ==Enums
 	public enum State
 	{
 		Lobby,
 		Match,
+		MatchToLobbyAnim,
 	}
 	#endregion
 
+	#region ==Inspector
+	[Header( "References" )]
+	public Text HUDMessage;
+	#endregion
+
 	#region ==Variables
+	protected float CurrentStateTime = 0;
 	protected State CurrentState;
 
 	protected List<BaseEnemy> CurrentEnemies;
@@ -28,6 +44,14 @@ public class Game : MonoBehaviour
     {
 		Instance = this;
 		RuntimeParent = GameObject.Find( "Runtime" ).transform;
+		PostProcessing = FindObjectOfType<Volume>();
+		PostProcessing.profile.TryGet( out ChromAb );
+		PostProcessing.profile.TryGet( out ColourAdj );
+		PostProcessing.profile.TryGet( out LensDis );
+
+		HUDMessage.color = new Color( HUDMessage.color.r, HUDMessage.color.g, HUDMessage.color.b, 0 );
+
+		StaticHelpers.Reset();
 
 		StartState( State.Lobby );
     }
@@ -35,6 +59,16 @@ public class Game : MonoBehaviour
     void Update()
     {
 		UpdateState( CurrentState );
+
+		// Post processes
+		ChromAb.intensity.value = Mathf.Lerp( ChromAb.intensity.value, 0, Time.deltaTime );
+		float target = 30;
+			if ( CurrentState == State.MatchToLobbyAnim )
+			{
+				target = -100;
+			}
+		ColourAdj.saturation.value = Mathf.Lerp( ColourAdj.saturation.value, target, Time.deltaTime );
+		LensDis.intensity.value = Mathf.Lerp( LensDis.intensity.value, 0, Time.deltaTime );
 
 		// Testing
 		//if ( Input.GetKeyDown( KeyCode.T ) )
@@ -76,6 +110,8 @@ public class Game : MonoBehaviour
 
 	private void StartState( State state )
 	{
+		CurrentStateTime = 0;
+
 		switch ( state )
 		{
 			case State.Lobby:
@@ -91,6 +127,8 @@ public class Game : MonoBehaviour
 				// Spawn player on character menu spot
 				// Smooth camera
 				break;
+			case State.MatchToLobbyAnim:
+				break;
 			default:
 				break;
 		}
@@ -98,6 +136,8 @@ public class Game : MonoBehaviour
 
 	private void UpdateState( State state )
 	{
+		CurrentStateTime += Time.deltaTime;
+
 		switch ( state )
 		{
 			case State.Lobby:
@@ -106,6 +146,26 @@ public class Game : MonoBehaviour
 				if ( Input.GetKeyDown( KeyCode.Tab ) )
 				{
 					UI.Instance.ToggleState( UI.State.Menu );
+				}
+
+				break;
+			case State.MatchToLobbyAnim:
+				if ( CurrentStateTime <= MATCHTOLOBBY_ANIM_TIME / 3 )
+				{
+					// Animate in
+					float progress = CurrentStateTime / ( MATCHTOLOBBY_ANIM_TIME / 3 );
+					HUDMessage.color = new Color( HUDMessage.color.r, HUDMessage.color.g, HUDMessage.color.b, progress );
+				}
+				else if ( CurrentStateTime >= MATCHTOLOBBY_ANIM_TIME / 3 * 2 )
+				{
+					// Animate out
+					float progress = ( CurrentStateTime - ( MATCHTOLOBBY_ANIM_TIME / 3 * 2 ) ) / ( MATCHTOLOBBY_ANIM_TIME / 3 );
+					HUDMessage.color = new Color( HUDMessage.color.r, HUDMessage.color.g, HUDMessage.color.b, 1 - progress );
+				}
+				// End
+				if ( CurrentStateTime >= MATCHTOLOBBY_ANIM_TIME )
+				{
+					SwitchState( State.Lobby );
 				}
 
 				break;
@@ -122,12 +182,24 @@ public class Game : MonoBehaviour
 				break;
 			case State.Match:
 				// Delete any runtimes
+				//UnloadLevel();
+				Player.Instance.Controllable = false;
+
+				break;
+			case State.MatchToLobbyAnim:
 				UnloadLevel();
+				Player.Instance.gameObject.SetActive( false );
+				SceneManager.LoadSceneAsync( 0 );
 
 				break;
 			default:
 				break;
 		}
+	}
+
+	public State GetState()
+	{
+		return CurrentState;
 	}
 	#endregion
 
@@ -135,7 +207,7 @@ public class Game : MonoBehaviour
 	public void LoadLevel()
 	{
 		// Load level into runtime
-		StaticHelpers.SpawnResource( "Levels/TestLevel", Vector3.zero, Quaternion.identity, Vector3.one );
+		StaticHelpers.SpawnResource( "Levels/TestLevel" );
 
 		// Store all enemies
 		CurrentEnemies = new List<BaseEnemy>( FindObjectsOfType<BaseEnemy>() );
@@ -148,6 +220,35 @@ public class Game : MonoBehaviour
 		{
 			Destroy( child.gameObject );
 		}
+		StaticHelpers.Reset();
+	}
+	#endregion
+
+	#region Win/Lose
+	public void Win()
+	{
+		SwitchState( State.MatchToLobbyAnim );
+		HUDMessage.text = "Mission success!";
+
+		StaticHelpers.GetOrCreateCachedAudioSource( "win", true );
+	}
+
+	public void Lose()
+	{
+		SwitchState( State.MatchToLobbyAnim );
+		HUDMessage.text = "Mission failed...";
+
+		StaticHelpers.GetOrCreateCachedAudioSource( "lose", true );
+	}
+	#endregion
+
+	#region Player
+	public void OnPlayerDie()
+	{
+		if ( CurrentState == State.Match )
+		{
+			Lose();
+		}
 	}
 	#endregion
 
@@ -156,10 +257,9 @@ public class Game : MonoBehaviour
 	{
 		CurrentEnemies.Remove( enemy );
 
-		if ( CurrentEnemies.Count == 0 )
+		if ( CurrentEnemies.Count == 0 && CurrentState == State.Match )
 		{
-			Player.Instance.gameObject.SetActive( false );
-			SceneManager.LoadSceneAsync( 0 );
+			Win();
 		}
 
 		// Temp

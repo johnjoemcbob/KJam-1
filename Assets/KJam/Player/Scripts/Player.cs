@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class Player : Killable
 {
@@ -21,7 +20,6 @@ public class Player : Killable
 	#endregion
 
 	#region ==Inspector
-	public float Speed = 10.0f;
 	public float RotationSpeed = 2.0f;
 
 	public float GroundedExtraAllowance = 0.5f;
@@ -51,6 +49,8 @@ public class Player : Killable
 	public bool Grounded;
 	[HideInInspector]
 	public bool Controllable = true;
+	[HideInInspector]
+	public Dictionary<string, VariableEffect> CurrentEffectors = new Dictionary<string, VariableEffect>();
 
 	private State CurrentState;
 	private float CurrentStateTime = 0;
@@ -83,6 +83,7 @@ public class Player : Killable
 		animator = GetComponentInChildren<Animator>();
 		BoomTrans = GetComponentInChildren<CameraControls>().transform.parent;
 
+		InitializeVariables();
 		SaveLoad.Load();
 	}
 
@@ -90,7 +91,10 @@ public class Player : Killable
 	{
 		base.Update();
 
-		animator.SetBool( "Controllable", Controllable );
+		// Undo rootmotion
+		animator.transform.localPosition = Vector3.zero;
+
+		//animator.SetBool( "Controllable", Controllable );
 
 		if ( Controllable )
 		{
@@ -99,15 +103,12 @@ public class Player : Killable
 			TargetVelocity = Vector3.zero;
 			UpdateState( CurrentState );
 
-			moveVelocity = Vector3.Lerp( moveVelocity, TargetVelocity, Time.deltaTime * Speed );
+			moveVelocity = Vector3.Lerp( moveVelocity, TargetVelocity, Time.deltaTime * BuffableVariable["Speed"].Current );
 			Vector3 velocity = moveVelocity + yVelocity * Vector3.up;
 			if ( velocity.magnitude >= DEADZONE )
 			{
 				controller.Move( velocity * Time.deltaTime );
 			}
-
-			// Undo rootmotion
-			animator.transform.localPosition = Vector3.zero;
 
 			// Look sine (TESTING)
 			currentHeadRotation = Mathf.Clamp( Mathf.Sin( Time.time * RotationSpeed ) * maxHeadRotation, minHeadRotation, maxHeadRotation );
@@ -118,12 +119,12 @@ public class Player : Killable
 				child.Rotate( Vector3.left, currentHeadRotation );
 			}
 		}
-		else
+		else if ( Game.Instance.GetState() == Game.State.Lobby )
 		{
 			// Update head - Look at cursor
 			Vector3 mouse = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane);
 			var pos = Camera.main.ScreenToWorldPoint( mouse ) + new Vector3( Camera.main.transform.localPosition.x, 0, 0 ) / 2;
-			Debug.DrawLine( Camera.main.transform.position, pos, Color.red, 5 );
+			//Debug.DrawLine( Camera.main.transform.position, pos, Color.red, 5 );
 			foreach ( Transform child in head )
 			{
 				child.localRotation = Quaternion.identity;
@@ -155,8 +156,6 @@ public class Player : Killable
 	private void StartState( State state )
 	{
 		CurrentStateTime = 0;
-
-		// TODO switch case
 	}
 
 	private void UpdateState( State state )
@@ -176,7 +175,7 @@ public class Player : Killable
 				}
 				else
 				{
-					yVelocity = -Gravity * Time.deltaTime * 5;
+					yVelocity = -Gravity * Time.deltaTime * 1; // 5;
 					LastGrounded = Time.time;
 					animator.SetTrigger( "Grounded" );
 				}
@@ -240,10 +239,10 @@ public class Player : Killable
 	private void InputMoveHorizontal()
 	{
 		// Input - Horizontal
-		TargetVelocity = BoomTrans.TransformDirection( new Vector3( Input.GetAxisRaw( "Horizontal" ), 0, 0 ) ) * Speed;
+		TargetVelocity = BoomTrans.TransformDirection( new Vector3( Input.GetAxisRaw( "Horizontal" ), 0, 0 ) ) * BuffableVariable["Speed"].Current;
 		var vertical = BoomTrans.transform.TransformDirection( new Vector3( 0, 0, Input.GetAxisRaw( "Vertical" ) ) );
 		vertical.y = 0;
-		TargetVelocity += vertical.normalized * Speed;
+		TargetVelocity += vertical.normalized * BuffableVariable["Speed"].Current;
 
 		// Velocity
 		Vector3 horizontalvel = new Vector3( moveVelocity.x, 0, moveVelocity.z );
@@ -299,6 +298,7 @@ public class Player : Killable
 		if ( CurrentStateTime > 0.1f )
 		{
 			StaticHelpers.EmitParticleDust( transform.position );
+			StaticHelpers.GetOrCreateCachedAudioSource( "player_land", transform.position, Random.Range( 0.8f, 1.2f ), 0.5f );
 		}
 	}
 	#endregion
@@ -311,11 +311,11 @@ public class Player : Killable
 		SwitchState( State.Attack );
 
 		float pitch = Random.Range( 0.8f, 1.2f );
-		StaticHelpers.SpawnAudioSource( SwordClip, Camera.main.transform.position, pitch, 1 );
+		StaticHelpers.GetOrCreateCachedAudioSource( SwordClip, Camera.main.transform.position, pitch, 1 );
 
 		// Spawn the hitbox
 		var animtrans = animator.transform;
-		Hitbox.Spawn( true, 1, animtrans.position + animtrans.up * 1 + animtrans.forward * 1, animtrans.rotation, animtrans.localScale );
+		Hitbox.Spawn( true, BuffableVariable["Damage"].Current, animtrans.position + animtrans.up * 1 + animtrans.forward * 1, animtrans.rotation, animtrans.localScale );
 	}
 
 	private void Jump()
@@ -323,20 +323,34 @@ public class Player : Killable
 		animator.SetTrigger( "Jump" );
 		SwitchState( State.Jump );
 
-		StaticHelpers.SpawnAudioSource( JumpClip, transform.position, Random.Range( 0.8f, 1.2f ), 0.5f );
+		StaticHelpers.GetOrCreateCachedAudioSource( JumpClip, transform.position, Random.Range( 0.8f, 1.2f ), 0.5f );
 		StaticHelpers.EmitParticleDust( transform.position );
 	}
 	#endregion
 
 	#region Health
+	public override void OnHit( Collider other )
+	{
+		base.OnHit( other );
+
+		if ( !Dead )
+		{
+			animator.SetTrigger( "TakeDamage" );
+			Game.ChromAb.intensity.value = 1;
+			Game.LensDis.intensity.value = -0.2f;
+		}
+	}
+
 	protected override void Die()
 	{
 		base.Die();
 
 		// Communicate with main Game class
-		// Game.Instance
-		gameObject.SetActive( false );
-		SceneManager.LoadSceneAsync( 0 );
+		if ( !Dead )
+		{
+			animator.SetTrigger( "Die" );
+			Game.Instance.OnPlayerDie();
+		}
 	}
 	#endregion
 
@@ -370,7 +384,7 @@ public class Player : Killable
 	}
 	#endregion
 
-	#region Equipped Items
+	#region Equipped
 	public void Equip( string type, BaseItem item )
 	{
 		if ( !EquippedItems.ContainsKey( type ) )
@@ -379,14 +393,16 @@ public class Player : Killable
 		}
 		EquippedItems[type] = Items.IndexOf( item );
 
+		ApplyBuffs( item );
 		UpdateSlot( type );
 	}
 
 	public void UnEquip( string type )
 	{
-		EquippedItems.Remove( type );
-
+		RemoveBuffs( Items[EquippedItems[type]] );
 		ClearSlot( type );
+
+		EquippedItems.Remove( type );
 	}
 
 	public Dictionary<string, int> GetEquippedItems()
@@ -396,6 +412,12 @@ public class Player : Killable
 
 	private void UpdateSlot( string type )
 	{
+		if ( Items[EquippedItems[type]].Armour )
+		{
+			UpdateArmourSlot( type );
+			return;
+		}
+
 		// Shouldn't be necessary but its a jam teehee
 		ClearSlot( type );
 
@@ -407,6 +429,12 @@ public class Player : Killable
 
 	private void ClearSlot( string type )
 	{
+		if ( Items[EquippedItems[type]].Armour )
+		{
+			ClearArmourSlot( type );
+			return;
+		}
+
 		var trans = GetSlot( type );
 		foreach ( Transform child in trans )
 		{
@@ -417,6 +445,179 @@ public class Player : Killable
 	private Transform GetSlot( string type )
 	{
 		return GameObject.Find( "ATTACH_" + type.ToString().ToUpper() ).transform;
+	}
+	#endregion
+
+	#region Equipped - Armour
+	public void ClearArmour()
+	{
+		ClearArmourSlot( "Torso" );
+		ClearArmourSlot( "Legs" );
+	}
+
+	private void ClearArmourSlot( string type, bool naked = true )
+	{
+		var model = GetComponentInChildren<CartoonHeroes.SetCharacter>();
+		foreach ( var itemGroup in model.itemGroups )
+		{
+			if ( itemGroup.name == type )
+			{
+				int clearslot = 0;
+				foreach ( var clear in itemGroup.items )
+				{
+					if ( model.HasItem( itemGroup, clearslot ) )
+					{
+						foreach ( var remove in model.GetRemoveObjList( itemGroup, clearslot ) )
+						{
+							Destroy( remove );
+						}
+					}
+					clearslot++;
+				}
+
+				if ( naked )
+				{
+					model.AddItem( itemGroup, 0 );
+				}
+			}
+		}
+	}
+
+	private void UpdateArmourSlot( string type )
+	{
+		ClearArmourSlot( type, false );
+
+		var model = GetComponentInChildren<CartoonHeroes.SetCharacter>();
+		foreach ( var itemGroup in model.itemGroups )
+		{
+			int slot = 0;
+			foreach ( var item in itemGroup.items )
+			{
+				if ( item.prefab == Items[EquippedItems[type]].Prefab )
+				{
+					model.AddItem( itemGroup, slot );
+					break;
+				}
+				slot++;
+			}
+		}
+	}
+	#endregion
+
+	#region Buffable
+	protected void InitializeVariables()
+	{
+		BuffableVariable.Add( "Speed", new BuffableVariable( 10 ) );
+		BuffableVariable.Add( "Damage", new BuffableVariable( 1 ) );
+	}
+
+	protected void ApplyBuffs( BaseItem item )
+	{
+		if ( item.Stats != null )
+		{
+			foreach ( var effect in item.Stats )
+			{
+				CurrentEffectors.Add( GetBuffID( item, effect ), effect );
+			}
+
+			OnBuffChanged();
+		}
+	}
+
+	protected void RemoveBuffs( BaseItem item )
+	{
+		if ( item.Stats != null )
+		{
+			foreach ( var effect in item.Stats )
+			{
+				CurrentEffectors.Remove( GetBuffID( item, effect ) );
+			}
+
+			OnBuffChanged();
+		}
+	}
+
+	protected void OnBuffChanged()
+	{
+		ComputeBuffs();
+
+		MaxHealth = BuffableVariable["MaxHP"].Current;
+		Health = MaxHealth; // TODO this would be bad with ingame runtime buffs, only really works for armour stuff.
+
+		// These are just used in place
+		//Speed = BuffableVariable["Speed"].Current;
+		//Damage = BuffableVariable["Damage"].Current;
+	}
+
+	protected void ComputeBuffs()
+	{
+		// Reset all current buffable values
+		var keys = new List<string>( BuffableVariable.Keys );
+		foreach ( var buffable in keys )
+		{
+			var buff = BuffableVariable[buffable];
+			{
+				buff.Current = buff.Base;
+			}
+			BuffableVariable[buffable] = buff;
+		}
+
+		// First; additions
+		foreach ( var effect in CurrentEffectors )
+		{
+			if ( !effect.Value.Multiply )
+			{
+				var buff = BuffableVariable[effect.Value.Variable];
+				{
+					buff.Current += effect.Value.Modifier;
+				}
+				BuffableVariable[effect.Value.Variable] = buff;
+			}
+		}
+
+		// Then; multiplications
+		foreach ( var effect in CurrentEffectors )
+		{
+			if ( effect.Value.Multiply )
+			{
+				var buff = BuffableVariable[effect.Value.Variable];
+				{
+					buff.Current *= effect.Value.Modifier;
+				}
+				BuffableVariable[effect.Value.Variable] = buff;
+			}
+		}
+	}
+
+	protected string GetBuffID( BaseItem item, VariableEffect stat )
+	{
+		return item.Name + " " + stat.Variable + " " + stat.Multiply + " " + stat.Modifier;
+	}
+	#endregion
+
+	#region Save
+	public void CreateSaveStructure()
+	{
+		Data.Gold = 0;
+		Data.Items = null;
+		Data.EquippedItemsKey = null;
+		Data.EquippedItemsValue = null;
+
+		// Initial Default items
+		Items = new List<BaseItem>();
+		var items = Resources.LoadAll( "Items", typeof( BaseItem ) );
+		foreach ( var obj in items )
+		{
+			var item = obj as BaseItem;
+			if ( item.Default )
+			{
+				AddItem( item );
+				Equip( item.Type.ToString(), item );
+			}
+		}
+
+		// Store this state
+		SaveLoad.Save();
 	}
 	#endregion
 

@@ -8,17 +8,11 @@ public class Hitbox : MonoBehaviour
 	public bool PlayerTeam;
 	public float Damage;
 
-	[HideInInspector]
-	public bool DestroyNextFrame = false;
-
 	private List<Transform> HasHit = new List<Transform>();
 
-	public void LateUpdate()
+	private void OnEnable()
 	{
-		if ( DestroyNextFrame )
-		{
-			Destroy( gameObject );
-		}
+		HasHit = new List<Transform>();
 	}
 
 	public bool CanHit( Transform other )
@@ -34,21 +28,18 @@ public class Hitbox : MonoBehaviour
 		// First hit of players always makes a noise
 		if ( HasHit.Count == 1 && PlayerTeam == true )
 		{
-			StaticHelpers.SpawnResourceAudioSource( "skeleton_attack", transform.position, Random.Range( 0.8f, 1.2f ) );
+			StaticHelpers.GetOrCreateCachedAudioSource( "skeleton_attack", transform.position, Random.Range( 0.8f, 1.2f ) );
 		}
 	}
 
 	public static GameObject Spawn( bool player, float damage, Vector3 pos, Quaternion rot, Vector3 scale )
 	{
-		var hitbox = StaticHelpers.SpawnPrefab( "Hitbox", pos, rot, scale );
+		var hitbox = StaticHelpers.GetOrCreateCachedPrefab( "Hitbox", pos, rot, scale, 1 );// Time.deltaTime * 5 );
 		{
 			// Set hitbox info
 			var hit = hitbox.GetComponent<Hitbox>();
 			hit.PlayerTeam = player;
 			hit.Damage = damage;
-
-			// Timer to destroy soon
-			Destroy( hitbox, Time.deltaTime * 5 );
 		}
 		return hitbox;
 	}

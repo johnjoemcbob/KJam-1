@@ -30,7 +30,7 @@ public class Chest : Hitable
 
 		OpenTime = Time.time;
 
-		StaticHelpers.SpawnAudioSource( OpenClip, Lid.position, Random.Range( 0.8f, 1.2f ), Random.Range( 0.8f, 1 ) );
+		StaticHelpers.GetOrCreateCachedAudioSource( OpenClip, Lid.position, Random.Range( 0.8f, 1.2f ), Random.Range( 0.8f, 1 ) );
 	}
 
 	public override void OnHit( Collider other )

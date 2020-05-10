@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4d1d6fdce7d0ea418f1cb8e143d52fa, type: 3}
+  m_Name: Legs_1
+  m_EditorClassIdentifier: 
+  Name: Trousers
+  Cost: 1
+  Type: 2
+  Default: 1
+  Buyable: 0
+  StoreAppearChance: 0
+  Armour: 1
+  Prefab: {fileID: 100022, guid: a21dffdbb678b38439d8c5954c371701, type: 3}
+  Sprite: {fileID: 21300000, guid: 3af705886806bfb4591cef0d439129d3, type: 3}
+  Stats:
+  - Variable: MaxHP
+    Multiply: 0
+    Modifier: 5

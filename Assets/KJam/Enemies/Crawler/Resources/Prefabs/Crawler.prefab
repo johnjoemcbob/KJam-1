@@ -4833,8 +4833,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PunchWhenHit: 1
-  MaxHealth: 2
+  MaxHealth: 30
   AttackRange: 1.5
+  Damage: 10
   KillDelay: 0.5
 --- !u!136 &3016414099477748447
 CapsuleCollider:

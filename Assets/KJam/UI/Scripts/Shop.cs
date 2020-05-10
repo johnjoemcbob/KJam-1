@@ -51,6 +51,8 @@ public class Shop : MonoBehaviour
 
 	private void AddListing( BaseItem item )
 	{
+		if ( !item.Buyable ) return;
+
 		GameObject listing = Instantiate( ItemListingPrefab, transform );
 		listing.GetComponentsInChildren<Text>()[0].text = item.Cost + "G";
 		listing.GetComponentsInChildren<Text>()[1].text = "Buy " + item.Name;

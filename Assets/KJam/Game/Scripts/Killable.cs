@@ -6,6 +6,8 @@ public class Killable : Hitable
 {
 	public float MaxHealth;
 
+	[HideInInspector]
+	public Dictionary<string, BuffableVariable> BuffableVariable = new Dictionary<string, BuffableVariable>();
 	protected float Health;
 	protected bool Dead = false;
 
@@ -13,6 +15,7 @@ public class Killable : Hitable
 	{
 		base.Start();
 
+		BuffableVariable.Add( "MaxHP", new BuffableVariable( MaxHealth ) );
 		Health = MaxHealth;
 	}
 

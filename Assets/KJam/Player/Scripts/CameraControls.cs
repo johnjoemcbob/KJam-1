@@ -32,11 +32,11 @@ public class CameraControls : MonoBehaviour
 				var rect = GameObject.Find( "Blank (Spacer)" ).GetComponent<RectTransform>();
 				float dir = 0;
 				float mult = 2;
-				if ( rect.position.x < 400 )
+				if ( rect.position.x < Screen.width / 5 * 2 )
 				{
 					dir = 1;
 				}
-				else if ( rect.position.x > 500 )
+				else if ( rect.position.x > Screen.width / 5 * 3 )
 				{
 					dir = -1;
 				}

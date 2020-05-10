@@ -11,7 +11,7 @@ public class InventoryUI : MonoBehaviour
 	{
 		public GameObject Element;
 		public BaseItem Item;
-		public string EquipedIn;
+		public string EquippedIn;
 	}
 
 	#region ==Inspector
@@ -21,7 +21,8 @@ public class InventoryUI : MonoBehaviour
 
 	#region ==Variables
 	Dictionary<string, EquipSlot> Slots = new Dictionary<string, EquipSlot>();
-	private Dictionary<GameObject, UIListing> Listings = new Dictionary<GameObject, UIListing>();
+	[HideInInspector]
+	public Dictionary<GameObject, UIListing> Listings = new Dictionary<GameObject, UIListing>();
 	private Dictionary<string, UIListing> Equipped = new Dictionary<string, UIListing>();
 	#endregion
 
@@ -38,15 +39,6 @@ public class InventoryUI : MonoBehaviour
 		{
 			Destroy( child.gameObject );
 		}
-
-		// TODO TEMP TESTING
-		//BaseItem item = new BaseItem();
-		//{
-		//	item.Name = "Hi";
-		//	item.Cost = 0;
-		//	item.Type = ItemType.Weapon;
-		//}
-		//Player.Instance.AddItem( item );
 
 		// Add
 		foreach ( var inv in Player.Instance.GetInventory() )
@@ -68,20 +60,39 @@ public class InventoryUI : MonoBehaviour
 		// Create UI
 		GameObject listing = Instantiate( ItemPrefab, transform );
 		listing.GetComponentsInChildren<Text>()[0].text = item.Name;
-		listing.GetComponentsInChildren<Image>()[2].sprite = item.Sprite;
+		listing.GetComponentsInChildren<Image>()[3].sprite = item.Sprite;
 
 		// Store
 		UIListing uilist = new UIListing();
 		{
 			uilist.Element = listing;
 			uilist.Item = item;
-			uilist.EquipedIn = "";
+			uilist.EquippedIn = "";
 		}
 		Listings.Add( listing, uilist );
 	}
 	#endregion
 
 	#region UI - Drag & Drop
+	public void OnDrag( DragItem item )
+	{
+		// Store correct slot if removed from Equipped
+		var listing = Listings[item.gameObject];
+		var slot = listing.Element.GetComponentInParent<EquipSlot>();
+		if ( slot != null )
+		{
+			listing.EquippedIn = slot.AcceptsItemType.ToString();
+			Listings[item.gameObject] = listing;
+		}
+
+		StaticHelpers.GetOrCreateCachedAudioSource( "ui_drag", true, Random.Range( 0.8f, 1.2f ) );
+	}
+
+	protected void OnDrop()
+	{
+		StaticHelpers.GetOrCreateCachedAudioSource( "ui_drop", true, Random.Range( 0.8f, 1.2f ) );
+	}
+
 	public void DropOnEquipSlot( string type, GameObject element, EquipSlot slot )
 	{
 		// Find listing from element
@@ -95,6 +106,8 @@ public class InventoryUI : MonoBehaviour
 			DropOnEmpty( listing );
 			return;
 		}
+
+		OnDrop();
 
 		// Unequip any old item if there is one
 		if ( HasEquipped( type ) )
@@ -113,10 +126,12 @@ public class InventoryUI : MonoBehaviour
 
 	public void DropOnEmpty( UIListing listing )
 	{
+		OnDrop();
+
 		// Unequip if was equipped
-		if ( listing.EquipedIn != "" && HasEquipped( listing.EquipedIn ) )
+		if ( listing.EquippedIn != "" && HasEquipped( listing.EquippedIn ) )
 		{
-			UnEquip( listing.EquipedIn );
+			UnEquip( listing.EquippedIn );
 		}
 
 		listing.Element.transform.parent = transform;
@@ -126,7 +141,7 @@ public class InventoryUI : MonoBehaviour
 	#region Equip
 	public void Equip( string type, UIListing listing, EquipSlot slot, bool visualonly = false )
 	{
-		listing.EquipedIn = type;
+		listing.EquippedIn = type;
 		Equipped.Add( type, listing );
 
 		// Communicate with player
@@ -138,13 +153,14 @@ public class InventoryUI : MonoBehaviour
 		// Parent UI to slot
 		listing.Element.transform.parent = slot.transform;
 		listing.Element.transform.localPosition = Vector3.zero;
+		listing.Element.transform.localScale = Vector3.one;
 	}
 
 	public void UnEquip( string type )
 	{
 		UIListing listing = Equipped[type];
 		{
-			listing.EquipedIn = "";
+			listing.EquippedIn = "";
 		}
 		Equipped[type] = listing;
 		Equipped.Remove( type );
@@ -154,6 +170,7 @@ public class InventoryUI : MonoBehaviour
 
 		// Return UI to inventory
 		listing.Element.transform.parent = transform;
+		listing.Element.transform.localScale = Vector3.one;
 	}
 
 	public Dictionary<string, UIListing> GetEquippeds()
@@ -173,9 +190,18 @@ public class InventoryUI : MonoBehaviour
 
 	private void InitializeEquippedUI()
 	{
+		// Store all first to avoid messing up order when equipping
+		List<GameObject> objs = new List<GameObject>();
 		foreach ( var item in Player.Instance.GetEquippedItems() )
 		{
-			Equip( item.Key, Listings[transform.GetChild( item.Value ).gameObject], Slots[item.Key], true );
+			objs.Add( transform.GetChild( item.Value ).gameObject );
+		}
+
+		int index = 0;
+		foreach ( var item in Player.Instance.GetEquippedItems() )
+		{
+			Equip( item.Key, Listings[objs[index]], Slots[item.Key], true );
+			index++;
 		}
 	}
 

@@ -14,7 +14,7 @@ public class ParticleSounds : MonoBehaviour
 		part = GetComponent<ParticleSystem>();
 		collisionEvents = new List<ParticleCollisionEvent>();
 
-		StaticHelpers.SpawnAudioSource( OnCreate, transform.position, Random.Range( 0.8f, 1.2f ), 1 );
+		StaticHelpers.GetOrCreateCachedAudioSource( OnCreate, transform.position, Random.Range( 0.8f, 1.2f ), 1 );
 	}
 
 	//void OnParticleCollision( GameObject other )

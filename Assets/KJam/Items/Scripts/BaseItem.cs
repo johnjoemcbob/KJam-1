@@ -14,17 +14,28 @@ public enum ItemType
 }
 
 [Serializable]
+public struct VariableEffect
+{
+	public string Variable;
+	public bool Multiply;
+	public float Modifier;
+}
+
+[Serializable]
 public class BaseItem : ScriptableObject
 {
 	public string Name;
 	//public string Description;
 	public int Cost;
 	public ItemType Type;
+	public bool Default;
 	public bool Buyable;
-	public float StoreAppearChance; // Percentage
+	public float StoreAppearChance; // TODO Percentage
 
+	public bool Armour;
 	public GameObject Prefab;
 	public Sprite Sprite;
 
-	public Dictionary<string, float> Stats;
+	[SerializeField]
+	public VariableEffect[] Stats;
 }

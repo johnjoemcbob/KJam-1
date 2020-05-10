@@ -15,31 +15,34 @@ public class EquipSlot : MonoBehaviour, IDropHandler
 		{
 			InventoryUI.Instance.AddSlot( this );
 		}
-		UpdateUI();
+		UpdateUINames();
 	}
 
 	private void Update()
 	{
 		if ( !Application.isPlaying )
 		{
-			UpdateUI();
+			UpdateUINames();
 		}
+
+		// Lerp
+		float size = 1.2f;
+		Vector3 target = Vector3.one;
+		if ( DragItem.CurrentDragged != null )
+		{
+			bool correct = ( InventoryUI.Instance.Listings[DragItem.CurrentDragged.gameObject].Item.Type == AcceptsItemType );
+			target = correct ? target * size : target / size;
+		}
+		transform.localScale = Vector3.Lerp( transform.localScale, target, Time.deltaTime * 5 );
 	}
 
 	public void OnDrop( PointerEventData data )
 	{
-		// Check its the correct item type
 		InventoryUI.Instance.DropOnEquipSlot( AcceptsItemType.ToString(), DragItem.CurrentDragged.gameObject, this );
 		DragItem.CurrentDragged = null;
-		//if ( true )
-		//{
-		//	DragItem.CurrentDragged.transform.parent = transform;
-		//	DragItem.CurrentDragged.transform.localPosition = Vector3.zero;
-		//	DragItem.CurrentDragged = null;
-		//}
 	}
 
-	public void UpdateUI()
+	public void UpdateUINames()
 	{
 		name = AcceptsItemType.ToString() + " (Slot)";
 		GetComponentInChildren<Text>().text = AcceptsItemType.ToString();

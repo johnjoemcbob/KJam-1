@@ -45,10 +45,10 @@ public class CrawlerEnemy : BaseEnemy
 		base.Attack();
 
 		GetComponentInChildren<Animator>().SetTrigger( "Attack" );
-		StaticHelpers.SpawnResourceAudioSource( "skeleton_attack", transform.position, Random.Range( 0.8f, 1.2f ) );
+		StaticHelpers.GetOrCreateCachedAudioSource( "skeleton_attack", transform.position, Random.Range( 0.8f, 1.2f ) );
 
 		// Spawn projectile
-		Hitbox.Spawn( false, 1, transform.position + transform.up * 1 + transform.forward * 1, transform.rotation, transform.localScale );
+		Hitbox.Spawn( false, Damage, transform.position + transform.up * 1 + transform.forward * 1, transform.rotation, transform.localScale );
 	}
 	#endregion
 
@@ -62,7 +62,7 @@ public class CrawlerEnemy : BaseEnemy
 			// Explode
 			GetComponentInChildren<Animator>().SetTrigger( "Die" );
 			GetComponent<Collider>().isTrigger = true;
-			StaticHelpers.SpawnResourceAudioSource( "crawler_die", transform.position, Random.Range( 0.8f, 1.2f ) );
+			StaticHelpers.GetOrCreateCachedAudioSource( "crawler_die", transform.position, Random.Range( 0.8f, 1.2f ) );
 			//GameObject death = Instantiate( Resources.Load( "Prefabs/Crawler Death" ), Game.RuntimeParent ) as GameObject;
 			//death.transform.position = transform.position;
 			//death.transform.rotation = transform.rotation;

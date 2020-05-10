@@ -11,14 +11,21 @@ public class FPSDisplay : MonoBehaviour
 
 	public void Update()
 	{
-		if ( NextUpdate <= Time.time )
+		if ( Options.ShowFPS )
 		{
-			float current = 0;
-			current = (int) ( 1f / Time.unscaledDeltaTime );
-			avgFrameRate = (int) current;
-			display_Text.text = avgFrameRate.ToString() + " FPS";
+			if ( NextUpdate <= Time.time )
+			{
+				float current = 0;
+				current = (int) ( 1f / Time.unscaledDeltaTime );
+				avgFrameRate = (int) current;
+				display_Text.text = avgFrameRate.ToString() + " FPS";
 
-			NextUpdate = Time.time + 0.5f;
+				NextUpdate = Time.time + 0.5f;
+			}
+		}
+		else
+		{
+			display_Text.text = "";
 		}
 	}
 }

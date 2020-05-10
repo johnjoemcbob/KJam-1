@@ -10118,8 +10118,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PunchWhenHit: 1
-  MaxHealth: 0
+  MaxHealth: 20
   AttackRange: 5
+  Damage: 3
   KillDelay: 0.1
 --- !u!135 &1857206060095257544
 SphereCollider:

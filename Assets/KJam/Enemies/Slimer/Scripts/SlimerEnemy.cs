@@ -54,13 +54,14 @@ public class SlimerEnemy : BaseEnemy
 		base.Attack();
 
 		GetComponentInChildren<Animator>().SetTrigger( "Attack" );
-		StaticHelpers.SpawnResourceAudioSource( "slimer_attack", transform.position, Random.Range( 0.8f, 1.2f ) );
+		StaticHelpers.GetOrCreateCachedAudioSource( "slimer_attack", transform.position, Random.Range( 0.8f, 1.2f ) );
 
 		// Spawn projectile
 		GameObject projectile = Instantiate( Resources.Load( "Prefabs/SlimerProjectile" ), Game.RuntimeParent ) as GameObject;
 		projectile.transform.position = Animator.transform.position + Animator.transform.up * 0.5f;
 		projectile.transform.LookAt( Player.Instance.transform.Find( "CenterMass" ) );
 		projectile.GetComponent<BaseProjectile>().PlayerTeam = false;
+		projectile.GetComponent<BaseProjectile>().Damage = Damage;
 		Destroy( projectile, 5 );
 	}
 	#endregion

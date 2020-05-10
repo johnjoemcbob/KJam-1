@@ -16,6 +16,8 @@ public class DragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
 		OldParent = transform.parent;
 		OldPos = transform.localPosition;
 
+		FindObjectOfType<InventoryUI>().OnDrag( this );
+
 		GetComponent<Image>().raycastTarget = false;
 		transform.parent = GetComponentInParent<Canvas>().transform;
 
@@ -25,6 +27,7 @@ public class DragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
 	public void OnDrag( PointerEventData data )
 	{
 		transform.position = Input.mousePosition;
+		transform.localScale = Vector3.one;
 	}
 
 	public void OnEndDrag( PointerEventData data )

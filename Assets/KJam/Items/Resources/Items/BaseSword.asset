@@ -15,7 +15,13 @@ MonoBehaviour:
   Name: Sword
   Cost: 10
   Type: 0
+  Default: 1
   Buyable: 0
   StoreAppearChance: 0
+  Armour: 0
   Prefab: {fileID: 2137324586289152025, guid: 59214abf0ef42284581349d82a4fc778, type: 3}
-  Sprite: {fileID: 21300000, guid: e3f1692a76e46f34ea4234735f05461f, type: 3}
+  Sprite: {fileID: 21300000, guid: 3f1e1a15e78d398408f991043f9a7ae9, type: 3}
+  Stats:
+  - Variable: Damage
+    Multiply: 0
+    Modifier: 5

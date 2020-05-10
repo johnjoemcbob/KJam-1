@@ -35,9 +35,12 @@ public class Footsteps : MonoBehaviour
 		{
 			int index = Left ? 0 : 1;
 			Vector2 pitch = Left ? PitchA : PitchB;
-			StaticHelpers.SpawnAudioSource( Clip, Feet[index].position, Random.Range( pitch.x, pitch.y ), Random.Range( Volume.x, Volume.y ) );
+			StaticHelpers.GetOrCreateCachedAudioSource( Clip, Feet[index].position, Random.Range( pitch.x, pitch.y ), Random.Range( Volume.x, Volume.y ) );
 			var dust = StaticHelpers.EmitParticleImpact( Feet[index].position );
-			dust.transform.localScale = Vector3.one * 0.2f;
+			if ( dust != null )
+			{
+				dust.transform.localScale = Vector3.one * 0.2f;
+			}
 		}
 	}
 }

@@ -29,9 +29,9 @@ public class SkeletonEnemy : BaseEnemy
 		base.Attack();
 
 		GetComponentInChildren<Animator>().SetTrigger( "Attack" );
-		StaticHelpers.SpawnResourceAudioSource( "skeleton_attack", transform.position, Random.Range( 0.8f, 1.2f ) );
+		StaticHelpers.GetOrCreateCachedAudioSource( "skeleton_attack", transform.position, Random.Range( 0.8f, 1.2f ) );
 
-		Hitbox.Spawn( false, 1, transform.position + transform.up * 1 + transform.forward * 1, transform.rotation, transform.localScale );
+		Hitbox.Spawn( false, Damage, transform.position + transform.up * 1 + transform.forward * 1, transform.rotation, transform.localScale );
 	}
 	#endregion
 

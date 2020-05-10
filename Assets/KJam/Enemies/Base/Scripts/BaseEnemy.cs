@@ -7,6 +7,7 @@ using UnityEngine.AI;
 public class BaseEnemy : Killable
 {
 	public float AttackRange = 1.5f;
+	public float Damage = 5;
 	public float KillDelay = 0.5f;
 
 	protected float NextAttack = 0;
@@ -92,7 +93,7 @@ public class BaseEnemy : Killable
 				if ( hit.PlayerTeam != isplayer )
 				{
 					Vector3 dir = ( transform.position - other.transform.position ).normalized;
-					StaticHelpers.SpawnPrefab( name + " Hit", other.ClosestPointOnBounds( transform.position ), Quaternion.LookRotation( dir, Vector3.up ), Vector3.one * hit.Damage );
+					StaticHelpers.GetOrCreateCachedPrefab( name + " Hit", other.ClosestPointOnBounds( transform.position ), Quaternion.LookRotation( dir, Vector3.up ), Vector3.one );// * hit.Damage / 5 );
 				}
 			}
 		}
