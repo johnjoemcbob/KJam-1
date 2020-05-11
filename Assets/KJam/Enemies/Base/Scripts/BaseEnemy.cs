@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 [RequireComponent( typeof(NavMeshAgent) )]
 public class BaseEnemy : Killable
@@ -12,9 +13,11 @@ public class BaseEnemy : Killable
 
 	protected float NextAttack = 0;
 	protected bool Killed = false;
+	protected float StartHealth;
 
 	protected Animator Animator;
 	protected NavMeshAgent Agent;
+	protected Slider HealthBar;
 
 	#region MonoBehaviour
 	public override void Start()
@@ -23,21 +26,23 @@ public class BaseEnemy : Killable
 
 		Animator = GetComponentInChildren<Animator>();
 		Agent = GetComponent<NavMeshAgent>();
-    }
+
+		Height = Agent.height;
+
+		if ( Health != 0 )
+		{
+			StartHealth = Health;
+
+			var bar = StaticHelpers.SpawnResource( "Prefabs/Healthbar" );
+			bar.transform.parent = transform;
+			bar.transform.localPosition = Vector3.up * ( Height + 0.1f );
+			HealthBar = bar.GetComponentInChildren<Slider>();
+		}
+	}
 
     public override void Update()
     {
 		base.Update();
-
-		//if ( Input.GetMouseButtonDown( 0 ) )
-		//{
-		//	var ray = Camera.main.ScreenPointToRay( Input.mousePosition );
-		//	RaycastHit hit;
-		//	if ( Physics.Raycast( ray, out hit ) )
-		//	{
-		//		Agent.SetDestination( hit.point );
-		//	}
-		//}
 
 		// This should still work for non-navmesh areas, but tables have to be jumped on to
 		var player = FindObjectOfType<Player>();
@@ -94,6 +99,11 @@ public class BaseEnemy : Killable
 				{
 					Vector3 dir = ( transform.position - other.transform.position ).normalized;
 					StaticHelpers.GetOrCreateCachedPrefab( name + " Hit", other.ClosestPointOnBounds( transform.position ), Quaternion.LookRotation( dir, Vector3.up ), Vector3.one );// * hit.Damage / 5 );
+
+					if ( HealthBar != null )
+					{
+						HealthBar.value = Health / StartHealth;
+					}
 				}
 			}
 		}
@@ -102,6 +112,11 @@ public class BaseEnemy : Killable
 	protected override void Die()
 	{
 		base.Die();
+
+		if ( HealthBar != null )
+		{
+			HealthBar.gameObject.SetActive( false );
+		}
 	}
 	#endregion
 }

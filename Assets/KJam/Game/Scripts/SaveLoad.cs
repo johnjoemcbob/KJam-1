@@ -118,6 +118,7 @@ public static class SaveLoad
 				Player.Instance.Equip( data.EquippedItemsKey[i], Player.Instance.Items[data.EquippedItemsValue[i]] );
 			}
 		}
+		UI.Instance.OnLoad();
 	}
 
 	public static void Clear()

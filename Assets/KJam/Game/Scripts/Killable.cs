@@ -32,6 +32,7 @@ public class Killable : Hitable
 	public void TakeDamage( float damage )
 	{
 		SetHealth( Health - damage );
+		SpawnDamageIndicator( damage );
 		if ( Health <= 0 )
 		{
 			Die();
@@ -58,5 +59,14 @@ public class Killable : Hitable
 	protected virtual void Die()
 	{
 
+	}
+
+	public void SpawnDamageIndicator( float damage )
+	{
+		var obj = StaticHelpers.GetOrCreateCachedPrefab( "Damage Indicator", transform.position + transform.up * 1.5f, transform.rotation, Vector3.one, 0 );
+		var dmg = obj.GetComponent<DamageIndicator>();
+		dmg.Init();
+		dmg.SetDamage( damage );
+		dmg.SetTeam( this == Player.Instance );
 	}
 }

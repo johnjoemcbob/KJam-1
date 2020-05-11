@@ -4,6 +4,16 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
 
+public class ItemSorter : IComparer<Object>
+{
+	int IComparer<Object>.Compare( Object x, Object y )
+	{
+		var a = x as BaseItem;
+		var b = y as BaseItem;
+		return a.Cost.CompareTo( b.Cost );
+	}
+}
+
 public class Shop : MonoBehaviour
 {
 	[Header( "References" )]
@@ -18,27 +28,28 @@ public class Shop : MonoBehaviour
 			Destroy( child.gameObject );
 		}
 
-		// Add
-		//AddListing( "Item", ItemType.Amulet, 6 );
-		//AddListing( "Sword", ItemType.Weapon, 12 );
-		//AddListing( "Potion", ItemType.Ring, 3 );
-		//AddListing( "Shield", ItemType.Weapon, 2 );
-		//AddListing( "Amulet", ItemType.Amulet, 1 );
-		//AddListing( "Thing", ItemType.Ring, 5 );
-		//AddListing( "Ring", ItemType.Ring, 7 );
-		//AddListing( "Belt", ItemType.Belt, 12 );
-
 		// Find all item resources
 		var items = Resources.LoadAll( "Items", typeof( BaseItem ) );
+		var sort = new ItemSorter();
+		System.Array.Sort<Object>( items, sort );
+		int count = 0;
+		int max = 8;
 		foreach ( var item in items )
 		{
-			AddListing( item as BaseItem );
+			if ( count < max )
+			{
+				bool success = AddListing( item as BaseItem );
+				if ( success )
+				{
+					count++;
+				}
+			}
 		}
 	}
 	#endregion
 
 	#region Listings
-	private void AddListing( string name, ItemType type, int cost )
+	private bool AddListing( string name, ItemType type, int cost )
 	{
 		BaseItem item = new BaseItem();
 		{
@@ -46,12 +57,12 @@ public class Shop : MonoBehaviour
 			item.Type = type;
 			item.Cost = cost;
 		}
-		AddListing( item );
+		return AddListing( item );
 	}
 
-	private void AddListing( BaseItem item )
+	private bool AddListing( BaseItem item )
 	{
-		if ( !item.Buyable ) return;
+		if ( !item.Buyable || Player.Instance.Items.Contains( item ) ) return false;
 
 		GameObject listing = Instantiate( ItemListingPrefab, transform );
 		listing.GetComponentsInChildren<Text>()[0].text = item.Cost + "G";
@@ -60,6 +71,8 @@ public class Shop : MonoBehaviour
 		listing.GetComponentsInChildren<Image>()[3].sprite = item.Sprite;
 
 		listing.GetComponentInChildren<Button>().onClick.AddListener( delegate { ButtonClickBuyListing( listing, item ); } );
+
+		return true;
 	}
 	#endregion
 
@@ -70,6 +83,8 @@ public class Shop : MonoBehaviour
 		{
 			Player.Instance.AddGold( -item.Cost );
 			Player.Instance.AddItem( item );
+
+			StaticHelpers.GetOrCreateCachedAudioSource( "gold_spend", false, Random.Range( 0.8f, 1.2f ) );
 
 			Destroy( listing );
 		}

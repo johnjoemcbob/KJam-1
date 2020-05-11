@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4d1d6fdce7d0ea418f1cb8e143d52fa, type: 3}
   m_Name: BaseRing
   m_EditorClassIdentifier: 
-  Name: Ring
+  Name: Ring of Damage
   Cost: 10
   Type: 4
   Default: 0

@@ -558,6 +558,8 @@ public class Player : Killable
 		MaxHealth = BuffableVariable["MaxHP"].Current;
 		Health = MaxHealth; // TODO this would be bad with ingame runtime buffs, only really works for armour stuff.
 
+		Height = controller.height; // For editing later if size buff
+
 		// These are just used in place
 		//Speed = BuffableVariable["Speed"].Current;
 		//Damage = BuffableVariable["Damage"].Current;
@@ -616,6 +618,7 @@ public class Player : Killable
 		Data.Items = null;
 		Data.EquippedItemsKey = null;
 		Data.EquippedItemsValue = null;
+		Data.LevelsPlayed = -1; // To account for levels played being ++ on reload while in menu
 
 		// Initial Default items
 		Items = new List<BaseItem>();

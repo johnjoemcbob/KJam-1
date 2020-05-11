@@ -30,6 +30,10 @@ public class UI : MonoBehaviour
 	#region ==Inspector
 	[Header( "Variables" )]
 	public float LobbyAnimDuration = 0.5f;
+
+	[Header( "References" )]
+	public GameObject Levels_FirstPlay;
+	public GameObject Levels_SubsequentPlays;
 	#endregion
 
 	#region ==Variables
@@ -73,6 +77,7 @@ public class UI : MonoBehaviour
 	{
 		ResetLobbyAnim();
 		SwitchLobbyState( LobbyState.Main, true );
+		//OnLoad();
 	}
 
 	private void Update()
@@ -170,6 +175,7 @@ public class UI : MonoBehaviour
 		CurrentLobbyState = state;
 		StartLobbyState( CurrentLobbyState, first );
 
+		OnLoad();
 		StaticHelpers.GetOrCreateCachedAudioSource( "ui_swoosh", true, Random.Range( 0.8f, 1.2f ) );
 
 		return true;
@@ -349,6 +355,32 @@ public class UI : MonoBehaviour
 		UILobbyContainers[(int) LobbyState.Real].name = "Real";
 	}
 	#endregion
+
+	public void OnLoad()
+	{
+		StartCoroutine( DelayOnLoad() );
+	}
+	// Running out of time sorry!
+	// The menu animation/cloning fucks up the loading here
+	public IEnumerator DelayOnLoad()
+	{
+		yield return new WaitForEndOfFrame();
+
+		// Progression/levels
+		bool first = ( Player.Instance.Data.LevelsPlayed <= 0 );
+
+		Vector3 zero = Vector3.zero;
+		Vector3 off = new Vector3( 0, 1000, 0 );
+
+		Levels_FirstPlay.transform.localPosition = first ? zero : off;
+		Levels_SubsequentPlays.transform.localPosition = !first ? zero : off;
+		var obj = GameObject.Find( "FirstPlay (Container)(Clone)" );
+		if ( obj != null )
+		{
+			obj.transform.localPosition = first ? zero : off;
+			GameObject.Find( "SubsequentPlays (Container)(Clone)" ).transform.localPosition = !first ? zero : off;
+		}
+	}
 
 	public bool ShouldShowCursor()
 	{

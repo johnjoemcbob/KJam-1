@@ -122,8 +122,6 @@ public class Game : MonoBehaviour
 			case State.Match:
 				UI.Instance.SwitchState( UI.State.HUD );
 				Player.Instance.Controllable = true;
-				// Spawn enemies
-				LoadLevel();
 				// Spawn player on character menu spot
 				// Smooth camera
 				break;
@@ -188,6 +186,7 @@ public class Game : MonoBehaviour
 				break;
 			case State.MatchToLobbyAnim:
 				UnloadLevel();
+				Player.Instance.Data.LevelsPlayed++; // Progression/levels
 				Player.Instance.gameObject.SetActive( false );
 				SceneManager.LoadSceneAsync( 0 );
 
@@ -204,13 +203,20 @@ public class Game : MonoBehaviour
 	#endregion
 
 	#region Level
-	public void LoadLevel()
+	public void LoadLevel( string level )
 	{
+		SwitchState( State.Match );
+
 		// Load level into runtime
-		StaticHelpers.SpawnResource( "Levels/TestLevel" );
+		StaticHelpers.SpawnResource( "Levels/" + level );
 
 		// Store all enemies
 		CurrentEnemies = new List<BaseEnemy>( FindObjectsOfType<BaseEnemy>() );
+
+		// Get player spawn point
+		var spawn = GameObject.Find( "PLAYERSPAWN" );
+		Player.Instance.transform.position = spawn.transform.position;
+		Player.Instance.transform.rotation = spawn.transform.rotation;
 	}
 
 	public void UnloadLevel()
@@ -290,5 +296,6 @@ public class Game : MonoBehaviour
 	public void ButtonClearSave()
 	{
 		SaveLoad.Clear();
+		FinishState( State.MatchToLobbyAnim );
 	}
 }

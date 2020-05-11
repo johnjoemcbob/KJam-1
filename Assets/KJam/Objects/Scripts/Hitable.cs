@@ -6,6 +6,7 @@ public class Hitable : MonoBehaviour
 {
 	[Header( "Variables" )]
 	public bool PunchWhenHit = true;
+	public float Height = 0;
 
 	public virtual void Start()
 	{

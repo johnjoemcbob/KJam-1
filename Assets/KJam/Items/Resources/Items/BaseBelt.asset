@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4d1d6fdce7d0ea418f1cb8e143d52fa, type: 3}
   m_Name: BaseBelt
   m_EditorClassIdentifier: 
-  Name: Belt
+  Name: Belt of Speed
   Cost: 10
   Type: 5
   Default: 0
@@ -20,8 +20,8 @@ MonoBehaviour:
   StoreAppearChance: 0
   Armour: 0
   Prefab: {fileID: 3886108534670922596, guid: a08ac47303f46564b9bebbcfdbd13f97, type: 3}
-  Sprite: {fileID: 0}
+  Sprite: {fileID: 21300000, guid: 238cb33f4d215a04084426d94a22d76f, type: 3}
   Stats:
   - Variable: Speed
     Multiply: 1
-    Modifier: 1.5
+    Modifier: 1.2
