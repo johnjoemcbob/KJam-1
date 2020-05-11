@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 9145775659732042497}
   - component: {fileID: 7806248630318142330}
-  - component: {fileID: 7172570426959322661}
   - component: {fileID: 8848672646752703508}
+  - component: {fileID: 7666895278971367920}
   m_Layer: 9
   m_Name: Hitbox
   m_TagString: Untagged
@@ -49,20 +49,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!136 &7172570426959322661
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9145775659732042496}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 1
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &8848672646752703508
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77,4 +63,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerTeam: 0
   Damage: 0
-  DestroyNextFrame: 0
+--- !u!65 &7666895278971367920
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9145775659732042496}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 3, y: 2, z: 2}
+  m_Center: {x: 0, y: 0, z: 0}
