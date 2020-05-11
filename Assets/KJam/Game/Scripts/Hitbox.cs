@@ -30,11 +30,15 @@ public class Hitbox : MonoBehaviour
 		{
 			StaticHelpers.GetOrCreateCachedAudioSource( "skeleton_attack", transform.position, Random.Range( 0.8f, 1.2f ) );
 		}
+
+		// Only hit one thing per?
+		transform.position = Vector3.one * 1000;
+		gameObject.SetActive( false );
 	}
 
 	public static GameObject Spawn( bool player, float damage, Vector3 pos, Quaternion rot, Vector3 scale )
 	{
-		var hitbox = StaticHelpers.GetOrCreateCachedPrefab( "Hitbox", pos, rot, scale, 1 );// Time.deltaTime * 5 );
+		var hitbox = StaticHelpers.GetOrCreateCachedPrefab( "Hitbox", pos, rot, scale, 0.2f );
 		{
 			// Set hitbox info
 			var hit = hitbox.GetComponent<Hitbox>();

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BaseBelt
   m_EditorClassIdentifier: 
   Name: Belt of Speed
-  Cost: 10
+  Cost: 50
   Type: 5
   Default: 0
   Buyable: 1
@@ -24,4 +24,4 @@ MonoBehaviour:
   Stats:
   - Variable: Speed
     Multiply: 1
-    Modifier: 1.2
+    Modifier: 1.3

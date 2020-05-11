@@ -19,6 +19,7 @@ public class UI : MonoBehaviour
 		Main,
 		Store,
 		Inventory,
+		Win,
 		//Skills,
 
 		// Last, used by code
@@ -167,9 +168,9 @@ public class UI : MonoBehaviour
 	{
 		SwitchLobbyState( (LobbyState) state );
 	}
-	public bool SwitchLobbyState( LobbyState state, bool first = false )
+	public bool SwitchLobbyState( LobbyState state, bool first = false, bool force = false )
 	{
-		if ( SwitchLobbyTime != 0 ) return false;
+		if ( SwitchLobbyTime != 0 && !force ) return false;
 
 		FinishLobbyState( CurrentLobbyState );
 		CurrentLobbyState = state;
@@ -217,19 +218,6 @@ public class UI : MonoBehaviour
 			}
 			LobbyAnimateFrom = LobbyAnimateTarget;
 			LobbyAnimateTarget = copy.transform;
-		}
-
-		// Unique
-		switch ( state )
-		{
-			case LobbyState.Main:
-				break;
-			case LobbyState.Store:
-				break;
-			case LobbyState.Inventory:
-				break;
-			default:
-				break;
 		}
 	}
 

@@ -10,21 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4d1d6fdce7d0ea418f1cb8e143d52fa, type: 3}
-  m_Name: Torso_2
+  m_Name: Sword_3
   m_EditorClassIdentifier: 
-  Name: Armour
-  Cost: 10
-  Type: 1
+  Name: Hero's Blade
+  Cost: 500
+  Type: 0
   Default: 0
   Buyable: 1
-  StoreAppearChance: 0
-  Armour: 1
-  Prefab: {fileID: 100000, guid: a54c56bf4e395ac4c940603b7b12ee75, type: 3}
-  Sprite: {fileID: 21300000, guid: 9376239f055fde44fb3df290eb5a50dc, type: 3}
+  StoreAppearChance: 100
+  Armour: 0
+  Prefab: {fileID: 2137324586289152025, guid: 96db5ef8bfd9108488bb36ef442d32e4, type: 3}
+  Sprite: {fileID: 21300000, guid: 3f1e1a15e78d398408f991043f9a7ae9, type: 3}
   Stats:
-  - Variable: MaxHP
+  - Variable: Damage
     Multiply: 0
     Modifier: 20
-  - Variable: Speed
-    Multiply: 1
-    Modifier: 0.95

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BaseAmulet
   m_EditorClassIdentifier: 
   Name: Amulet of Health
-  Cost: 10
+  Cost: 200
   Type: 3
   Default: 0
   Buyable: 1

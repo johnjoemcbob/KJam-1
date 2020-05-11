@@ -128,7 +128,7 @@ public class StaticHelpers
 			// Search prefabs for any disabled which are usable
 			foreach ( var cached in AudioPool )
 			{
-				if ( !cached.gameObject.activeSelf )
+				if ( cached != null && !cached.gameObject.activeSelf )
 				{
 					source = cached;
 					source.gameObject.SetActive( true );

@@ -27,4 +27,4 @@ MonoBehaviour:
     Modifier: 50
   - Variable: Speed
     Multiply: 1
-    Modifier: 0.8
+    Modifier: 0.9

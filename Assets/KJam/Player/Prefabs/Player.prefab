@@ -2327,6 +2327,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PunchWhenHit: 1
+  Height: 0
   MaxHealth: 0
   RotationSpeed: 2
   GroundedExtraAllowance: 0.5
@@ -2340,6 +2341,7 @@ MonoBehaviour:
   SwordClip: {fileID: 8300000, guid: 08dc9293aec8cd54b8a2c59260e4c376, type: 3}
   Data:
     BuildVersion: 
+    LevelsPlayed: 0
     Gold: 0
     Items: []
     EquippedItemsKey: []
@@ -2523,7 +2525,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6041b33db8b61b94facc2ebba8c27b53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Distance: {x: 0.5, y: 3}
+  Distance: {x: 0.5, y: 2}
   BackcastOffset: 0.2
   ColliderSphereRadius: 0.4
   OffsetBackFromHit: 0.2

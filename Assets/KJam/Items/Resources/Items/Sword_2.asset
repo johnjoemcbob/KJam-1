@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4d1d6fdce7d0ea418f1cb8e143d52fa, type: 3}
-  m_Name: BigSword
+  m_Name: Sword_2
   m_EditorClassIdentifier: 
   Name: Knight's Blade
-  Cost: 500
+  Cost: 100
   Type: 0
   Default: 0
   Buyable: 1
   StoreAppearChance: 100
   Armour: 0
-  Prefab: {fileID: 2137324586289152025, guid: 96db5ef8bfd9108488bb36ef442d32e4, type: 3}
+  Prefab: {fileID: 2137324586289152025, guid: 59214abf0ef42284581349d82a4fc778, type: 3}
   Sprite: {fileID: 21300000, guid: 3f1e1a15e78d398408f991043f9a7ae9, type: 3}
   Stats:
   - Variable: Damage
     Multiply: 0
-    Modifier: 20
+    Modifier: 10

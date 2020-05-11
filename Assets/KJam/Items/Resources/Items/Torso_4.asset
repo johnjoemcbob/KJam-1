@@ -10,21 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4d1d6fdce7d0ea418f1cb8e143d52fa, type: 3}
-  m_Name: Torso_2
+  m_Name: Torso_4
   m_EditorClassIdentifier: 
-  Name: Armour
-  Cost: 10
+  Name: Hero's Plate
+  Cost: 500
   Type: 1
   Default: 0
   Buyable: 1
   StoreAppearChance: 0
   Armour: 1
-  Prefab: {fileID: 100000, guid: a54c56bf4e395ac4c940603b7b12ee75, type: 3}
-  Sprite: {fileID: 21300000, guid: 9376239f055fde44fb3df290eb5a50dc, type: 3}
+  Prefab: {fileID: 100000, guid: fba03d136e511a9438a9e19a8c96fc65, type: 3}
+  Sprite: {fileID: 21300000, guid: 3f0d9b1403404134a9620bf4f90e5e42, type: 3}
   Stats:
   - Variable: MaxHP
     Multiply: 0
-    Modifier: 20
-  - Variable: Speed
+    Modifier: 150
+  - Variable: Damage
     Multiply: 1
-    Modifier: 0.95
+    Modifier: 1.1

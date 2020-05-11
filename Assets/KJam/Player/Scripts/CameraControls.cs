@@ -40,7 +40,8 @@ public class CameraControls : MonoBehaviour
 				{
 					dir = -1;
 				}
-				Vector3 target = -Vector3.forward * Distance.y + Vector3.right * dir * mult;
+				float dist = 3; // Distance.y;
+				Vector3 target = -Vector3.forward * dist + Vector3.right * dir * mult;
 				transform.localPosition = Vector3.Lerp( transform.localPosition, target, Time.deltaTime * LerpSpeed );
 			}
 

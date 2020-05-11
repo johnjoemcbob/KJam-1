@@ -35,6 +35,8 @@ public class Game : MonoBehaviour
 	#region ==Variables
 	protected float CurrentStateTime = 0;
 	protected State CurrentState;
+	protected static string CurrentLevel;
+	protected static bool Won;
 
 	protected List<BaseEnemy> CurrentEnemies;
 	#endregion
@@ -54,7 +56,18 @@ public class Game : MonoBehaviour
 		StaticHelpers.Reset();
 
 		StartState( State.Lobby );
-    }
+
+		if ( Won && CurrentLevel == "Mission3" )
+		{
+			UI.Instance.SwitchLobbyState( UI.LobbyState.Win, false, true );
+		}
+	}
+
+	public IEnumerator DelayedWin()
+	{
+		yield return new WaitForSeconds( 0.3f );
+
+	}
 
     void Update()
     {
@@ -71,6 +84,17 @@ public class Game : MonoBehaviour
 		LensDis.intensity.value = Mathf.Lerp( LensDis.intensity.value, 0, Time.deltaTime );
 
 		// Testing
+		if ( Application.isEditor )
+		{
+			if ( Input.GetKeyDown( KeyCode.G ) )
+			{
+				Player.Instance.AddGold( 1000 );
+			}
+			if ( Input.GetKeyDown( KeyCode.P ) )
+			{
+				Win();
+			}
+		}
 		//if ( Input.GetKeyDown( KeyCode.T ) )
 		//{
 		//	SwitchState( State.Match );
@@ -126,6 +150,11 @@ public class Game : MonoBehaviour
 				// Smooth camera
 				break;
 			case State.MatchToLobbyAnim:
+				// Jam player helpers
+				if ( Player.Instance.Data.LevelsPlayed <= 1 && Player.Instance.GetGold() < 10 )
+				{
+					Player.Instance.AddGold( 10 - Player.Instance.GetGold() );
+				}
 				break;
 			default:
 				break;
@@ -209,6 +238,7 @@ public class Game : MonoBehaviour
 
 		// Load level into runtime
 		StaticHelpers.SpawnResource( "Levels/" + level );
+		CurrentLevel = level;
 
 		// Store all enemies
 		CurrentEnemies = new List<BaseEnemy>( FindObjectsOfType<BaseEnemy>() );
@@ -235,6 +265,8 @@ public class Game : MonoBehaviour
 	{
 		SwitchState( State.MatchToLobbyAnim );
 		HUDMessage.text = "Mission success!";
+		Won = true;
+		Player.Instance.AddGold( 10 );
 
 		StaticHelpers.GetOrCreateCachedAudioSource( "win", true );
 	}
@@ -243,6 +275,7 @@ public class Game : MonoBehaviour
 	{
 		SwitchState( State.MatchToLobbyAnim );
 		HUDMessage.text = "Mission failed...";
+		Won = false;
 
 		StaticHelpers.GetOrCreateCachedAudioSource( "lose", true );
 	}
@@ -296,6 +329,6 @@ public class Game : MonoBehaviour
 	public void ButtonClearSave()
 	{
 		SaveLoad.Clear();
-		FinishState( State.MatchToLobbyAnim );
+		SceneManager.LoadSceneAsync( 0 );
 	}
 }

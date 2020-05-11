@@ -372,7 +372,7 @@ public class Player : Killable
 		return Data.Gold >= gold;
 	}
 
-	public float GetGold()
+	public int GetGold()
 	{
 		return Data.Gold;
 	}
@@ -521,7 +521,7 @@ public class Player : Killable
 	#region Buffable
 	protected void InitializeVariables()
 	{
-		BuffableVariable.Add( "Speed", new BuffableVariable( 10 ) );
+		BuffableVariable.Add( "Speed", new BuffableVariable( 7 ) );
 		BuffableVariable.Add( "Damage", new BuffableVariable( 1 ) );
 	}
 
@@ -618,7 +618,7 @@ public class Player : Killable
 		Data.Items = null;
 		Data.EquippedItemsKey = null;
 		Data.EquippedItemsValue = null;
-		Data.LevelsPlayed = -1; // To account for levels played being ++ on reload while in menu
+		Data.LevelsPlayed = 0;// -1; // To account for levels played being ++ on reload while in menu
 
 		// Initial Default items
 		Items = new List<BaseItem>();
