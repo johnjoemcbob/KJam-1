@@ -39,6 +39,7 @@ public class UI : MonoBehaviour
 
 	#region ==Variables
 	private State CurrentState;
+	private State LastState;
 	private LobbyState CurrentLobbyState;
 	private float SwitchLobbyTime = 0;
 	#endregion
@@ -88,9 +89,14 @@ public class UI : MonoBehaviour
 	#endregion
 
 	#region States
+	public void SwitchState( int state )
+	{
+		SwitchState( (State) state );
+	}
 	public void SwitchState( State state )
 	{
 		FinishState( CurrentState );
+		LastState = CurrentState;
 		CurrentState = state;
 		StartState( CurrentState );
 	}
@@ -105,6 +111,11 @@ public class UI : MonoBehaviour
 		{
 			SwitchState( state );
 		}
+	}
+
+	public State GetState()
+	{
+		return CurrentState;
 	}
 
 	private void StartState( State state )
@@ -123,6 +134,8 @@ public class UI : MonoBehaviour
 				}
 				break;
 			case State.Menu:
+				var enable = ( LastState == State.Lobby );
+				UIContainers[(int) state].transform.GetChild( 0 ).Find( "Back (Button)" ).gameObject.SetActive( enable );
 				break;
 			default:
 				break;
@@ -138,22 +151,7 @@ public class UI : MonoBehaviour
 			case State.HUD:
 				break;
 			case State.Lobby:
-				break;
-			case State.Menu:
-				break;
-			default:
-				break;
-		}
-	}
-
-	// TODO maybe this should depend on a push pop stack instead?
-	public void ButtonStateBack()
-	{
-		switch ( CurrentState )
-		{
-			case State.HUD:
-				break;
-			case State.Lobby:
+				SwitchLobbyTime = 1; // Flag as needing reset (not ideal but heyho)
 				break;
 			case State.Menu:
 				break;
@@ -307,7 +305,7 @@ public class UI : MonoBehaviour
 		var realanim = UILobbyContainers[(int) LobbyState.AnimReal];
 		var real = UILobbyContainers[(int) LobbyState.Real];
 
-		// Clear the real
+		// Clear all panels first
 		foreach ( Transform section in real.transform )
 		{
 			foreach ( Transform child in section )
@@ -344,6 +342,7 @@ public class UI : MonoBehaviour
 	}
 	#endregion
 
+	#region On Load
 	public void OnLoad()
 	{
 		StartCoroutine( DelayOnLoad() );
@@ -369,6 +368,7 @@ public class UI : MonoBehaviour
 			GameObject.Find( "SubsequentPlays (Container)(Clone)" ).transform.localPosition = !first ? zero : off;
 		}
 	}
+	#endregion
 
 	public bool ShouldShowCursor()
 	{

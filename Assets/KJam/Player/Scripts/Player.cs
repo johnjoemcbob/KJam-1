@@ -60,12 +60,12 @@ public class Player : Killable
 	private float yVelocity = 0;
 	private Vector3 TargetVelocity = Vector3.zero;
 	private Vector3 moveVelocity = Vector3.zero;
-
+	private RaycastHit GroundRayInfo;
 	#endregion
 
 	#region ==References
-	private CharacterController controller;
-	private Animator animator;
+	private CharacterController Controller;
+	private Animator Animator;
 	private Transform BoomTrans;
 	#endregion
 
@@ -79,8 +79,9 @@ public class Player : Killable
 	{
 		base.Start();
 
-		controller = GetComponent<CharacterController>();
-		animator = GetComponentInChildren<Animator>();
+		Controller = GetComponent<CharacterController>();
+		Animator = GetComponentInChildren<Animator>();
+			Animator.SetBool( "Dead", false );
 		BoomTrans = GetComponentInChildren<CameraControls>().transform.parent;
 
 		InitializeVariables();
@@ -92,7 +93,7 @@ public class Player : Killable
 		base.Update();
 
 		// Undo rootmotion
-		animator.transform.localPosition = Vector3.zero;
+		Animator.transform.localPosition = Vector3.zero;
 
 		//animator.SetBool( "Controllable", Controllable );
 
@@ -107,7 +108,7 @@ public class Player : Killable
 			Vector3 velocity = moveVelocity + yVelocity * Vector3.up;
 			if ( velocity.magnitude >= DEADZONE )
 			{
-				controller.Move( velocity * Time.deltaTime );
+				Controller.Move( velocity * Time.deltaTime );
 			}
 
 			// Look sine (TESTING)
@@ -177,8 +178,11 @@ public class Player : Killable
 				{
 					yVelocity = -Gravity * Time.deltaTime * 1; // 5;
 					LastGrounded = Time.time;
-					animator.SetTrigger( "Grounded" );
+					Animator.SetTrigger( "Grounded" );
 				}
+
+				// Before any input
+				MoveSlope();
 
 				InputMoveHorizontal();
 				InputJump();
@@ -248,7 +252,7 @@ public class Player : Killable
 		Vector3 horizontalvel = new Vector3( moveVelocity.x, 0, moveVelocity.z );
 
 		// Update animator
-		animator.SetFloat( "RunSpeed", horizontalvel.magnitude );
+		Animator.SetFloat( "RunSpeed", horizontalvel.magnitude );
 
 		if ( horizontalvel.magnitude >= DEADZONE )
 		{
@@ -286,13 +290,13 @@ public class Player : Killable
 	private void MoveFall()
 	{
 		// Gravity
-		animator.SetFloat( "FallSpeed", Grounded ? 0 : yVelocity );
+		Animator.SetFloat( "FallSpeed", Grounded ? 0 : yVelocity );
 		yVelocity -= Gravity * Time.deltaTime;
 	}
 
 	private void OnGrounded()
 	{
-		animator.SetFloat( "FallSpeed", 0 );
+		Animator.SetFloat( "FallSpeed", 0 );
 
 		// If landed after a while of air time, play effects
 		if ( CurrentStateTime > 0.1f )
@@ -301,13 +305,24 @@ public class Player : Killable
 			StaticHelpers.GetOrCreateCachedAudioSource( "player_land", transform.position, Random.Range( 0.8f, 1.2f ), 0.5f );
 		}
 	}
+
+	private void MoveSlope()
+	{
+		// Get ray down, get normal
+		if ( !Controller.isGrounded && GroundRayInfo.normal != Vector3.up )
+		{
+			// If not up then is on slope
+			// Apply higher gravity
+			yVelocity -= Gravity * Time.deltaTime * 1000;
+		}
+	}
 	#endregion
 
 	#region Actions
 	private void Attack()
 	{
 		AttackAnim = !AttackAnim;
-		animator.SetTrigger( "Attack" + ( AttackAnim ? 1 : 3 ) );// + Mathf.RoundToInt( Random.Range( 1, 3 ) ) );
+		Animator.SetTrigger( "Attack" + ( AttackAnim ? 1 : 3 ) );// + Mathf.RoundToInt( Random.Range( 1, 3 ) ) );
 		SwitchState( State.Attack );
 
 		float pitch = Random.Range( 0.8f, 1.2f );
@@ -316,13 +331,13 @@ public class Player : Killable
 	// Called from animator for correct damage timings
 	public void SpawnHitbox()
 	{
-		var animtrans = animator.transform;
+		var animtrans = Animator.transform;
 		Hitbox.Spawn( true, BuffableVariable["Damage"].Current, animtrans.position + animtrans.up * 1 + animtrans.forward * 1, animtrans.rotation, animtrans.localScale );
 	}
 
 	private void Jump()
 	{
-		animator.SetTrigger( "Jump" );
+		Animator.SetTrigger( "Jump" );
 		SwitchState( State.Jump );
 
 		StaticHelpers.GetOrCreateCachedAudioSource( JumpClip, transform.position, Random.Range( 0.8f, 1.2f ), 0.5f );
@@ -337,7 +352,7 @@ public class Player : Killable
 
 		if ( !Dead )
 		{
-			animator.SetTrigger( "TakeDamage" );
+			Animator.SetTrigger( "TakeDamage" );
 			Game.ChromAb.intensity.value = 1;
 			Game.LensDis.intensity.value = -0.2f;
 
@@ -352,7 +367,7 @@ public class Player : Killable
 		// Communicate with main Game class
 		if ( !Dead )
 		{
-			animator.SetTrigger( "Die" );
+			Animator.SetBool( "Dead", true );
 			Game.Instance.OnPlayerDie();
 		}
 	}
@@ -558,7 +573,7 @@ public class Player : Killable
 		MaxHealth = BuffableVariable["MaxHP"].Current;
 		Health = MaxHealth; // TODO this would be bad with ingame runtime buffs, only really works for armour stuff.
 
-		Height = controller.height; // For editing later if size buff
+		Height = Controller.height; // For editing later if size buff
 
 		// These are just used in place
 		//Speed = BuffableVariable["Speed"].Current;
@@ -643,7 +658,7 @@ public class Player : Killable
 	#region Grounded
 	public bool IsGrounded()
 	{
-		if ( controller.isGrounded )
+		if ( Controller.isGrounded )
 		{
 			return true;
 		}
@@ -652,7 +667,7 @@ public class Player : Killable
 			// Raycast down from player feet, if hit something close then is grounded
 			int layerMask = 1 << LayerMask.NameToLayer( "Default" );
 			//Debug.DrawLine( transform.position, transform.position - Vector3.up * 0.5f, Color.red, 1 );
-			if ( Physics.Raycast( transform.position, -Vector3.up, 0.2f, layerMask ) )
+			if ( Physics.Raycast( transform.position, -Vector3.up, out GroundRayInfo, 0.2f, layerMask ) )
 			{
 				return true;
 			}

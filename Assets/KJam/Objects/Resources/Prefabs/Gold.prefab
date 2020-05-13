@@ -4970,7 +4970,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 1.5
+  m_Radius: 3
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1072325936913455267
 MonoBehaviour:
@@ -4998,9 +4998,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BobSpeed: 5
   BobAmount: 0.5
-  LerpSpeed: 8
+  LerpSpeed: 5
+  LerpAccel: 10
   RotateSpeed: 10
-  BagSpeed: 30
+  BagSpeed: 15
+  BagAccel: 5
   ParabolicSpeed: 8
   ParabolicHeight: 1.5
   Amount: 10

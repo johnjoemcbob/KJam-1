@@ -27,7 +27,7 @@ public class CameraControls : MonoBehaviour
 			Cursor.lockState = CursorLockMode.None;
 
 			// UI Lobby camera
-			if ( !Player.Instance.Controllable )
+			if ( !Player.Instance.Controllable && UI.Instance.GetState() == UI.State.Lobby )
 			{
 				var rect = GameObject.Find( "Blank (Spacer)" ).GetComponent<RectTransform>();
 				float dir = 0;

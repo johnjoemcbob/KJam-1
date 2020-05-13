@@ -22,6 +22,7 @@ public class Game : MonoBehaviour
 	public enum State
 	{
 		Lobby,
+		LobbyToMatchAnim,
 		Match,
 		MatchToLobbyAnim,
 	}
@@ -143,13 +144,19 @@ public class Game : MonoBehaviour
 				UI.Instance.SwitchState( UI.State.Lobby );
 				Player.Instance.Controllable = false;
 				break;
-			case State.Match:
+			case State.LobbyToMatchAnim:
 				UI.Instance.SwitchState( UI.State.HUD );
 				Player.Instance.Controllable = true;
-				// Spawn player on character menu spot
-				// Smooth camera
+				// TODO Smooth camera, into face and then out on pos
+				break;
+			case State.Match:
+				//UI.Instance.SwitchState( UI.State.HUD );
+				//Player.Instance.Controllable = true;
 				break;
 			case State.MatchToLobbyAnim:
+				// Communicate to animator
+				Player.Instance.GetComponentInChildren<Animator>().SetFloat( "RunSpeed", 0 );
+				Player.Instance.GetComponentInChildren<Animator>().SetTrigger( "End" );
 				// Jam player helpers
 				if ( Player.Instance.Data.LevelsPlayed <= 1 && Player.Instance.GetGold() < 10 )
 				{
@@ -168,6 +175,26 @@ public class Game : MonoBehaviour
 		switch ( state )
 		{
 			case State.Lobby:
+				break;
+			case State.LobbyToMatchAnim:
+				if ( CurrentStateTime <= MATCHTOLOBBY_ANIM_TIME / 3 )
+				{
+					// Animate in
+					float progress = CurrentStateTime / ( MATCHTOLOBBY_ANIM_TIME / 3 );
+					HUDMessage.color = new Color( HUDMessage.color.r, HUDMessage.color.g, HUDMessage.color.b, progress );
+				}
+				else if ( CurrentStateTime >= MATCHTOLOBBY_ANIM_TIME / 3 * 2 )
+				{
+					// Animate out
+					float progress = ( CurrentStateTime - ( MATCHTOLOBBY_ANIM_TIME / 3 * 2 ) ) / ( MATCHTOLOBBY_ANIM_TIME / 3 );
+					HUDMessage.color = new Color( HUDMessage.color.r, HUDMessage.color.g, HUDMessage.color.b, 1 - progress );
+				}
+				// End
+				if ( CurrentStateTime >= MATCHTOLOBBY_ANIM_TIME )
+				{
+					SwitchState( State.Match );
+				}
+
 				break;
 			case State.Match:
 				if ( Input.GetKeyDown( KeyCode.Tab ) )
@@ -207,6 +234,8 @@ public class Game : MonoBehaviour
 		{
 			case State.Lobby:
 				break;
+			case State.LobbyToMatchAnim:
+				break;
 			case State.Match:
 				// Delete any runtimes
 				//UnloadLevel();
@@ -234,7 +263,12 @@ public class Game : MonoBehaviour
 	#region Level
 	public void LoadLevel( string level )
 	{
-		SwitchState( State.Match );
+		HUDMessage.text = "Kill all the enemies to win!\nLoot barrels and find chests for gold";
+			if ( level == "Intro" )
+			{
+				HUDMessage.text = "I've got to escape! But maybe I can still loot the wizard's tower first..";
+			}
+		SwitchState( State.LobbyToMatchAnim );
 
 		// Load level into runtime
 		StaticHelpers.SpawnResource( "Levels/" + level );

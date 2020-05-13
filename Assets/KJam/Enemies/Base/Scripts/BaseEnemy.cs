@@ -67,10 +67,10 @@ public class BaseEnemy : Killable
 		{
 			Agent.SetDestination( transform.position );
 			transform.LookAt( playerpos );
+			transform.localEulerAngles = new Vector3( 0, transform.localEulerAngles.y, 0 );
 
 			if ( NextAttack <= Time.time )
 			{
-				transform.localEulerAngles = new Vector3( 0, transform.localEulerAngles.y, 0 );
 				Attack();
 			}
 		}

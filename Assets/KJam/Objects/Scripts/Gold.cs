@@ -8,8 +8,10 @@ public class Gold : MonoBehaviour
 	public float BobSpeed = 5;
 	public float BobAmount = 0.5f;
 	public float LerpSpeed = 5;
+	public float LerpAccel = 5;
 	public float RotateSpeed = 1;
 	public float BagSpeed = 5;
+	public float BagAccel = 5;
 	public float ParabolicSpeed = 1;
 	public float ParabolicHeight = 1;
 
@@ -49,6 +51,9 @@ public class Gold : MonoBehaviour
 		{
 			if ( !Bagged )
 			{
+				// Catch up to player, even if they are very fast
+				LerpSpeed += Time.deltaTime * LerpAccel;
+
 				transform.position = Vector3.Lerp( transform.position, Bag.position, Time.deltaTime * LerpSpeed );
 				if ( Vector3.Distance( transform.position, Bag.position ) < 0.2f )
 				{
@@ -57,7 +62,10 @@ public class Gold : MonoBehaviour
 			}
 			else
 			{
-				transform.position = Vector3.Lerp( transform.position, Bag.position, Time.deltaTime * LerpSpeed * LerpSpeed );
+				// Catch up to player, even if they are very fast
+				BagSpeed += Time.deltaTime * BagAccel;
+
+				transform.position = Vector3.Lerp( transform.position, Bag.position, Time.deltaTime * BagSpeed );
 				visual.localScale = Vector3.Lerp( visual.localScale, Vector3.zero, Time.deltaTime * BagSpeed );
 
 				if ( visual.localScale.x < 0.01f )
