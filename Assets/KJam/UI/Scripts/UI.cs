@@ -151,7 +151,7 @@ public class UI : MonoBehaviour
 			case State.HUD:
 				break;
 			case State.Lobby:
-				SwitchLobbyTime = 1; // Flag as needing reset (not ideal but heyho)
+				//SwitchLobbyTime = 1; // Flag as needing reset (not ideal but heyho)
 				break;
 			case State.Menu:
 				break;
