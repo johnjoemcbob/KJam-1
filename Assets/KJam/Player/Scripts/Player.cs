@@ -313,7 +313,7 @@ public class Player : Killable
 		{
 			// If not up then is on slope
 			// Apply higher gravity
-			yVelocity -= Gravity * Time.deltaTime * 1000;
+			yVelocity -= Gravity * Time.deltaTime * 10;
 		}
 	}
 	#endregion
